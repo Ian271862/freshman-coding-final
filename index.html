@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 .wrap{padding:1rem 0}
@@ -77,3 +78,177 @@
 
   <div id="list"></div>
 </div>
+=======
+<script>
+const priOrder = {urgent:0,high:1,medium:2,low:3};
+const priLabel = {urgent:'Urgent',high:'High',medium:'Medium',low:'Low'};
+
+function todayPlus(days, hour=9) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  d.setHours(hour, 0, 0, 0);
+  return d.toISOString().slice(0,16);
+}
+
+let tasks = [
+  {id:1, text:'Review project proposal', pri:'urgent', due: todayPlus(0, 17), done:false},
+  {id:2, text:'Send weekly status update', pri:'high', due: todayPlus(1, 10), done:false},
+  {id:3, text:'Book team lunch', pri:'medium', due: todayPlus(5, 12), done:false},
+  {id:4, text:'Update password manager', pri:'low', due: todayPlus(-2, 9), done:false},
+  {id:5, text:'File expense report', pri:'high', due: todayPlus(-1, 17), done:false},
+];
+let nextId = 6;
+let filter = 'all';
+
+function setFilter(f, btn) {
+  filter = f;
+  document.querySelectorAll('.filters button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function addTask() {
+  const txt = document.getElementById('taskInput').value.trim();
+  if (!txt) return;
+  tasks.push({id:nextId++, text:txt, pri:document.getElementById('priSel').value, due:document.getElementById('dueInput').value, done:false});
+  document.getElementById('taskInput').value = '';
+  render();
+}
+
+document.getElementById('taskInput').addEventListener('keydown', e => { if(e.key==='Enter') addTask(); });
+
+function toggle(id) {
+  const t = tasks.find(t=>t.id===id);
+  if(t) t.done = !t.done;
+  render();
+}
+
+function del(id) {
+  tasks = tasks.filter(t=>t.id!==id);
+  render();
+}
+
+function pad(n){ return String(Math.floor(n)).padStart(2,'0'); }
+
+function formatCountdown(dueStr, done) {
+  if (!dueStr) return null;
+  const due = new Date(dueStr);
+  const now = new Date();
+  const diffMs = due - now;
+  const absSec = Math.abs(diffMs) / 1000;
+  const days = Math.floor(absSec / 86400);
+  const hrs  = Math.floor((absSec % 86400) / 3600);
+  const mins = Math.floor((absSec % 3600) / 60);
+  const secs = Math.floor(absSec % 60);
+
+  let label, timerStr, cls;
+
+  if (diffMs < 0) {
+    if (done) {
+      label = 'Completed late';
+      timerStr = days > 0 ? `${days}d ${pad(hrs)}h ${pad(mins)}m ago` : `${pad(hrs)}h ${pad(mins)}m ${pad(secs)}s ago`;
+      cls = 'upcoming';
+    } else {
+      label = 'Overdue by';
+      timerStr = days > 0 ? `${days}d ${pad(hrs)}h ${pad(mins)}m ${pad(secs)}s` : `${pad(hrs)}h ${pad(mins)}m ${pad(secs)}s`;
+      cls = 'overdue';
+    }
+  } else {
+    const totalHrs = days * 24 + hrs;
+    if (totalHrs < 2) {
+      label = 'Due in';
+      timerStr = `${pad(hrs)}h ${pad(mins)}m ${pad(secs)}s`;
+      cls = 'today';
+    } else if (days === 0) {
+      label = 'Due today in';
+      timerStr = `${pad(hrs)}h ${pad(mins)}m ${pad(secs)}s`;
+      cls = 'soon';
+    } else if (days === 1) {
+      label = 'Due tomorrow in';
+      timerStr = `${days}d ${pad(hrs)}h ${pad(mins)}m ${pad(secs)}s`;
+      cls = 'soon';
+    } else {
+      label = 'Due in';
+      timerStr = `${days}d ${pad(hrs)}h ${pad(mins)}m ${pad(secs)}s`;
+      cls = 'upcoming';
+    }
+  }
+  return { label, timerStr, cls };
+}
+
+function taskHTML(t) {
+  const cd = formatCountdown(t.due, t.done);
+  const rightHTML = cd ? `
+    <div class="task-right">
+      <span class="due-label ${t.done ? 'upcoming' : cd.cls}">${cd.label}</span>
+      <span class="countdown ${t.done ? 'upcoming' : cd.cls}" data-id="${t.id}">${cd.timerStr}</span>
+    </div>` : '';
+  return `<div class="task${t.done?' done':''}" id="task-${t.id}">
+    <div class="cb${t.done?' checked':''}" onclick="toggle(${t.id})">
+      <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="task-main">
+      <span class="badge p-${t.pri}">${priLabel[t.pri]}</span>
+      <span class="task-text">${t.text}</span>
+    </div>
+    ${rightHTML}
+    <button class="del" onclick="del(${t.id})">&#x2715;</button>
+  </div>`;
+}
+
+function render() {
+  let visible = [...tasks];
+  if (filter === 'open') visible = visible.filter(t=>!t.done);
+  else if (filter === 'done') visible = visible.filter(t=>t.done);
+  else if (['urgent','high','medium','low'].includes(filter)) visible = visible.filter(t=>t.pri===filter);
+
+  visible.sort((a,b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    return priOrder[a.pri] - priOrder[b.pri];
+  });
+
+  const open = visible.filter(t=>!t.done);
+  const done = visible.filter(t=>t.done);
+
+  let html = '';
+  if (!visible.length) {
+    html = '<div class="empty">No tasks here</div>';
+  } else {
+    html += open.map(t => taskHTML(t)).join('');
+    if (done.length) {
+      html += `<div class="section-label">Completed</div>`;
+      html += done.map(t => taskHTML(t)).join('');
+    }
+  }
+
+  document.getElementById('list').innerHTML = `<div class="task-list">${html}</div>`;
+  document.getElementById('s-total').textContent = tasks.length;
+  document.getElementById('s-urgent').textContent = tasks.filter(t=>t.pri==='urgent'&&!t.done).length;
+  document.getElementById('s-open').textContent = tasks.filter(t=>!t.done).length;
+  document.getElementById('s-done').textContent = tasks.filter(t=>t.done).length;
+}
+
+function tick() {
+  const els = document.querySelectorAll('.countdown[data-id]');
+  els.forEach(el => {
+    const id = parseInt(el.dataset.id);
+    const t = tasks.find(t=>t.id===id);
+    if (!t || !t.due) return;
+    const cd = formatCountdown(t.due, t.done);
+    if (!cd) return;
+    el.textContent = cd.timerStr;
+    el.className = `countdown ${t.done ? 'upcoming' : cd.cls}`;
+    const label = el.previousElementSibling;
+    if (label) {
+      label.textContent = cd.label;
+      label.className = `due-label ${t.done ? 'upcoming' : cd.cls}`;
+    }
+  });
+}
+
+render();
+setInterval(tick, 1000);
+</script>
+
+
+>>>>>>> 98fc8397f5a86675d34cd92e208ab49ba80db7cb

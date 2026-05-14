@@ -1,3 +1,5 @@
+const WEATHER_API_KEY="b7efa27cad39347c3d0075af7b170cd4";
+
 let tasks=[];
 
 const quotes=[
@@ -14,6 +16,188 @@ const quotes=[
 ];
 
 const $=id=>document.getElementById(id);
+
+/* =========================
+   NOTIFICATIONS
+========================= */
+
+async function enableNotifications(){
+
+if(!("Notification" in window)){
+alert("Notifications not supported");
+return;
+}
+
+const permission=
+await Notification.requestPermission();
+
+if(permission==="granted"){
+
+new Notification(
+"Notifications Enabled 🔔",
+{
+body:"Smart reminders are now active."
+}
+);
+
+}else{
+
+alert("Notifications were denied");
+
+}
+
+}
+
+/* =========================
+   WEATHER SMART TASKS
+========================= */
+
+async function getWeatherTasks(){
+
+if(!navigator.geolocation){
+
+alert("Geolocation not supported");
+return;
+
+}
+
+navigator.geolocation.getCurrentPosition(
+async position=>{
+
+const lat=position.coords.latitude;
+const lon=position.coords.longitude;
+
+try{
+
+const response=await fetch(
+`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=imperial`
+);
+
+const data=await response.json();
+
+const forecast=data.list[0];
+
+const weather=
+forecast.weather[0].main.toLowerCase();
+
+const temp=forecast.main.temp;
+
+if(weather.includes("rain")){
+
+createWeatherTask(
+"Take an umbrella ☔",
+"Rain is predicted today."
+);
+
+sendNotification(
+"Rain Expected ☔",
+"Take an umbrella today."
+);
+
+}
+
+if(weather.includes("snow")){
+
+createWeatherTask(
+"Wear warm clothes ❄️",
+"Snow is predicted today."
+);
+
+sendNotification(
+"Snow Expected ❄️",
+"Wear warm clothes today."
+);
+
+}
+
+if(temp>=90){
+
+createWeatherTask(
+"Drink extra water 🥤",
+"Hot weather expected today."
+);
+
+sendNotification(
+"Hot Weather ☀️",
+"Stay hydrated today."
+);
+
+}
+
+if(temp<=45){
+
+createWeatherTask(
+"Bring a jacket 🧥",
+"Cold weather expected today."
+);
+
+sendNotification(
+"Cold Weather 🧥",
+"Bring a jacket today."
+);
+
+}
+
+renderTasks();
+renderCalendar();
+
+}catch(error){
+
+console.error(error);
+
+alert(
+"Weather API failed. Check your API key."
+);
+
+}
+
+},
+error=>{
+
+alert(
+"Location access denied."
+);
+
+}
+);
+
+}
+
+function createWeatherTask(title,description){
+
+const alreadyExists=tasks.some(
+t=>t.text===title
+);
+
+if(alreadyExists)return;
+
+tasks.push({
+id:Date.now()+Math.random(),
+text:title,
+description,
+priority:"medium",
+dueDate:new Date().toISOString().slice(0,16),
+recurring:"none",
+done:false
+});
+
+}
+
+function sendNotification(title,body){
+
+if(Notification.permission==="granted"){
+
+new Notification(title,{
+body
+});
+
+}
+
+}
+
+/* =========================
+   TASKS
+========================= */
 
 function addTask(){
 
@@ -53,11 +237,14 @@ task.done=false;
 
 }else{
 
-if(task.recurring && task.recurring!=="none"){
+if(task.recurring &&
+task.recurring!=="none"){
 
 handleRecurring(task);
 
-tasks=tasks.filter(t=>t.id!==task.id);
+tasks=tasks.filter(
+t=>t.id!==task.id
+);
 
 showPopup();
 
@@ -81,32 +268,46 @@ renderCalendar();
 
 function handleRecurring(task){
 
-if(!task.recurring || task.recurring==="none") return;
+if(!task.recurring ||
+task.recurring==="none") return;
 
-const currentDate=new Date(task.dueDate);
+const currentDate=
+new Date(task.dueDate);
 
-let nextDate=new Date(currentDate);
+let nextDate=
+new Date(currentDate);
 
 switch(task.recurring){
 
 case "daily":
-nextDate.setDate(nextDate.getDate()+1);
+nextDate.setDate(
+nextDate.getDate()+1
+);
 break;
 
 case "weekly":
-nextDate.setDate(nextDate.getDate()+7);
+nextDate.setDate(
+nextDate.getDate()+7
+);
 break;
 
 case "biweekly":
-nextDate.setDate(nextDate.getDate()+14);
+nextDate.setDate(
+nextDate.getDate()+14
+);
 break;
 
 case "monthly":
-nextDate.setMonth(nextDate.getMonth()+1);
+nextDate.setMonth(
+nextDate.getMonth()+1
+);
 break;
 
 case "lastThursday":
-nextDate=getLastThursdayNextMonth(currentDate);
+nextDate=
+getLastThursdayNextMonth(
+currentDate
+);
 break;
 
 }
@@ -128,10 +329,15 @@ function getLastThursdayNextMonth(date){
 const year=date.getFullYear();
 const month=date.getMonth()+1;
 
-const lastDay=new Date(year,month+1,0);
+const lastDay=
+new Date(year,month+1,0);
 
 while(lastDay.getDay()!==4){
-lastDay.setDate(lastDay.getDate()-1);
+
+lastDay.setDate(
+lastDay.getDate()-1
+);
+
 }
 
 lastDay.setHours(
@@ -147,15 +353,25 @@ return lastDay;
 
 function formatDateTimeLocal(date){
 
-const pad=n=>String(n).padStart(2,"0");
+const pad=n=>
+String(n).padStart(2,"0");
 
-return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+return `
+${date.getFullYear()}-
+${pad(date.getMonth()+1)}-
+${pad(date.getDate())}
+T
+${pad(date.getHours())}:
+${pad(date.getMinutes())}
+`.replace(/\s/g,"");
 
 }
 
 function deleteTask(id){
 
-tasks=tasks.filter(t=>t.id!==id);
+tasks=tasks.filter(
+t=>t.id!==id
+);
 
 renderTasks();
 renderCalendar();
@@ -166,15 +382,23 @@ function getCountdown(date){
 
 if(!date)return "";
 
-const diff=new Date(date)-new Date();
+const diff=
+new Date(date)-new Date();
 
 if(diff<=0)return "Overdue";
 
-const d=Math.floor(diff/86400000);
-const h=Math.floor(diff/3600000%24);
-const m=Math.floor(diff/60000%60);
+const d=
+Math.floor(diff/86400000);
 
-return `${d}d ${h}h ${m}m remaining`;
+const h=
+Math.floor(diff/3600000%24);
+
+const m=
+Math.floor(diff/60000%60);
+
+return `
+${d}d ${h}h ${m}m remaining
+`;
 
 }
 
@@ -206,25 +430,32 @@ return "";
 
 function renderTasks(){
 
-$("taskList").innerHTML=tasks.map(task=>{
+$("taskList").innerHTML=
+tasks.map(task=>{
 
-const countdown=getCountdown(task.dueDate);
+const countdown=
+getCountdown(task.dueDate);
 
 const urgent=
-(new Date(task.dueDate)-new Date())<10800000;
+(new Date(task.dueDate)
+-new Date())<10800000;
 
 return `
 
-<div class="task ${task.done?"done":""}">
+<div class="task
+${task.done?"done":""}">
 
 <div class="task-left">
 
 <h3>${task.text}</h3>
 
 ${task.description ?
-`<div class="description">${task.description}</div>` : ""}
+`<div class="description">
+${task.description}
+</div>` : ""}
 
-<span class="badge ${task.priority}">
+<span class="badge
+${task.priority}">
 ${task.priority.toUpperCase()}
 </span>
 
@@ -239,7 +470,9 @@ font-weight:bold;
 color:#4f46e5;
 display:inline-block;
 ">
-🔁 ${recurringLabel(task.recurring)}
+🔁 ${recurringLabel(
+task.recurring
+)}
 </div>
 ` : ""}
 
@@ -247,24 +480,36 @@ display:inline-block;
 
 ${task.dueDate ?
 `<strong>Due:</strong>
-${new Date(task.dueDate).toLocaleString()}` : ""}
+${new Date(
+task.dueDate
+).toLocaleString()}` : ""}
 
 <br><br>
 
 ${countdown}
 
-${urgent && !task.done && task.dueDate ?
-`<div class="warning">⚠ Due within 3 hours</div>` : ""}
+${urgent &&
+!task.done &&
+task.dueDate ?
+`<div class="warning">
+⚠ Due within 3 hours
+</div>` : ""}
 
 </div>
 
 <div class="task-buttons">
 
-<button onclick="toggleTask(${task.id})">
-${task.done ? "Undo" : "Done"}
+<button onclick="
+toggleTask(${task.id})
+">
+${task.done ?
+"Undo" :
+"Done"}
 </button>
 
-<button onclick="deleteTask(${task.id})">
+<button onclick="
+deleteTask(${task.id})
+">
 Delete
 </button>
 
@@ -280,70 +525,128 @@ Delete
 
 function showPopup(){
 
-const popup=document.createElement("div");
+const popup=
+document.createElement("div");
 
 popup.className="popup";
 
 popup.innerHTML=`
 <h3>Task Completed 🎉</h3>
 <br>
-<p>${quotes[Math.floor(Math.random()*quotes.length)]}</p>
+<p>
+${quotes[
+Math.floor(
+Math.random()*quotes.length
+)
+]}
+</p>
 `;
 
 document.body.appendChild(popup);
 
-setTimeout(()=>popup.remove(),3000);
+setTimeout(
+()=>popup.remove(),
+3000
+);
 
 }
 
-let currentMonth=new Date().getMonth();
-let currentYear=new Date().getFullYear();
+/* =========================
+   CALENDAR
+========================= */
+
+let currentMonth=
+new Date().getMonth();
+
+let currentYear=
+new Date().getFullYear();
 
 const months=[
-"January","February","March","April","May","June",
-"July","August","September","October","November","December"
+"January","February","March",
+"April","May","June",
+"July","August","September",
+"October","November","December"
 ];
 
 const days=[
-"Sun","Mon","Tue","Wed","Thu","Fri","Sat"
+"Sun","Mon","Tue",
+"Wed","Thu","Fri","Sat"
 ];
 
 function renderCalendar(){
 
 $("monthTitle").textContent=
-`${months[currentMonth]} ${currentYear}`;
+`${months[currentMonth]}
+${currentYear}`;
 
 $("calendar").innerHTML=
-days.map(d=>`<div class="day-name">${d}</div>`).join("");
+days.map(d=>
+`<div class="day-name">
+${d}
+</div>`
+).join("");
 
 const firstDay=
-new Date(currentYear,currentMonth,1).getDay();
+new Date(
+currentYear,
+currentMonth,
+1
+).getDay();
 
 const daysInMonth=
-new Date(currentYear,currentMonth+1,0).getDate();
+new Date(
+currentYear,
+currentMonth+1,
+0
+).getDate();
 
 for(let i=0;i<firstDay;i++){
-$("calendar").innerHTML+="<div></div>";
+
+$("calendar").innerHTML+=
+"<div></div>";
+
 }
 
-for(let day=1;day<=daysInMonth;day++){
+for(let day=1;
+day<=daysInMonth;
+day++){
 
 const dateObj=
-new Date(currentYear,currentMonth,day);
+new Date(
+currentYear,
+currentMonth,
+day
+);
 
 const date=
-dateObj.toISOString().split("T")[0];
+dateObj.toISOString()
+.split("T")[0];
 
-const taskHTML=tasks
-.filter(t=>t.dueDate && t.dueDate.startsWith(date))
-.map(t=>`<div class="calendar-task">${t.text}</div>`)
+const taskHTML=
+tasks
+.filter(
+t=>t.dueDate &&
+t.dueDate.startsWith(date)
+)
+.map(
+t=>`
+<div class="calendar-task">
+${t.text}
+</div>
+`
+)
 .join("");
 
 $("calendar").innerHTML+=`
 
-<div class="day" onclick="selectDate('${date}')">
+<div class="day"
+onclick="selectDate(
+'${date}'
+)">
 
-<div class="day-number">${day}</div>
+<div class="day-number">
+${day}
+</div>
 
 ${taskHTML}
 
@@ -358,7 +661,9 @@ ${taskHTML}
 function selectDate(date){
 
 const currentTime=
-$("dueDate").value.split("T")[1] || "12:00";
+$("dueDate")
+.value.split("T")[1]
+||"12:00";
 
 $("dueDate").value=
 `${date}T${currentTime}`;
@@ -375,13 +680,17 @@ function changeMonth(num){
 currentMonth+=num;
 
 if(currentMonth<0){
+
 currentMonth=11;
 currentYear--;
+
 }
 
 if(currentMonth>11){
+
 currentMonth=0;
 currentYear++;
+
 }
 
 renderCalendar();
@@ -391,4 +700,7 @@ renderCalendar();
 renderTasks();
 renderCalendar();
 
-setInterval(renderTasks,60000);
+setInterval(
+renderTasks,
+60000
+);

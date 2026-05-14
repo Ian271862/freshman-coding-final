@@ -213,6 +213,12 @@ z-index:999;
 animation:slide .3s ease
 }
 
+.weather-buttons{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px
+}
+
 @keyframes slide{
 from{
 transform:translateX(80px);
@@ -237,6 +243,10 @@ font-size:12px
 
 .calendar-grid{
 gap:5px
+}
+
+.weather-buttons{
+grid-template-columns:1fr
 }
 
 }
@@ -274,7 +284,21 @@ gap:5px
 <option value="lastThursday">Last Thursday of the Month</option>
 </select>
 
-<button onclick="addTask()">Add Task</button>
+<div class="weather-buttons">
+
+<button onclick="enableNotifications()">
+Enable Notifications
+</button>
+
+<button onclick="getWeatherTasks()">
+Enable Weather Smart Tasks
+</button>
+
+</div>
+
+<button onclick="addTask()">
+Add Task
+</button>
 
 </div>
 
@@ -283,9 +307,17 @@ gap:5px
 <div class="calendar-box">
 
 <div class="calendar-header">
-<button onclick="changeMonth(-1)">◀</button>
+
+<button onclick="changeMonth(-1)">
+◀
+</button>
+
 <div id="monthTitle"></div>
-<button onclick="changeMonth(1)">▶</button>
+
+<button onclick="changeMonth(1)">
+▶
+</button>
+
 </div>
 
 <div class="calendar-grid" id="calendar"></div>

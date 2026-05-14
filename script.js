@@ -221,37 +221,47 @@ return `
 
 <h3>${task.text}</h3>
 
-${task.description?
-`<div class="description">${task.description}</div>`:""}
+${task.description ?
+`<div class="description">${task.description}</div>` : ""}
 
 <span class="badge ${task.priority}">
 ${task.priority.toUpperCase()}
 </span>
 
-${task.recurring!=="none"?
-`<div style="margin-top:10px;font-size:13px;color:#555;">
+${task.recurring!=="none" ? `
+<div style="
+margin-top:10px;
+padding:6px 10px;
+background:#eef2ff;
+border-radius:8px;
+font-size:13px;
+font-weight:bold;
+color:#4f46e5;
+display:inline-block;
+">
 🔁 ${recurringLabel(task.recurring)}
-</div>`:""}
+</div>
+` : ""}
 
 <br><br>
 
-${task.dueDate?
+${task.dueDate ?
 `<strong>Due:</strong>
-${new Date(task.dueDate).toLocaleString()}`:""}
+${new Date(task.dueDate).toLocaleString()}` : ""}
 
 <br><br>
 
 ${countdown}
 
-${urgent&&!task.done&&task.dueDate?
-`<div class="warning">⚠ Due within 3 hours</div>`:""}
+${urgent && !task.done && task.dueDate ?
+`<div class="warning">⚠ Due within 3 hours</div>` : ""}
 
 </div>
 
 <div class="task-buttons">
 
 <button onclick="toggleTask(${task.id})">
-${task.done?"Undo":"Done"}
+${task.done ? "Undo" : "Done"}
 </button>
 
 <button onclick="deleteTask(${task.id})">
@@ -325,7 +335,7 @@ const date=
 dateObj.toISOString().split("T")[0];
 
 const taskHTML=tasks
-.filter(t=>t.dueDate&&t.dueDate.startsWith(date))
+.filter(t=>t.dueDate && t.dueDate.startsWith(date))
 .map(t=>`<div class="calendar-task">${t.text}</div>`)
 .join("");
 
@@ -348,7 +358,7 @@ ${taskHTML}
 function selectDate(date){
 
 const currentTime=
-$("dueDate").value.split("T")[1]||"12:00";
+$("dueDate").value.split("T")[1] || "12:00";
 
 $("dueDate").value=
 `${date}T${currentTime}`;

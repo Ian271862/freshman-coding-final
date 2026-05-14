@@ -2,79 +2,202 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Todo List</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Todo App</title>
 
 <style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f3f4f8;padding:20px;color:#222}
+.wrap{max-width:1000px;margin:auto}
+h1{text-align:center;margin-bottom:20px}
 
-/* Makes sizing easier */
-*{
-  box-sizing:border-box;
-  font-family:Arial,sans-serif;
-}
-
-body{
-  background:#f4f4f4;
-  padding:20px;
-}
-
-.wrap{
-  max-width:800px;
-  margin:auto;
+.add-row,.calendar-box,.task{
+background:#fff;
+border-radius:16px;
+box-shadow:0 4px 12px rgba(0,0,0,.08)
 }
 
 .add-row{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-bottom:20px;
+padding:20px;
+display:grid;
+gap:12px;
+margin-bottom:25px
 }
 
-input,select,button{
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #ccc;
+input,textarea,select,button{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:1px solid #ccc;
+font-size:15px
 }
 
-input[type=text]{
-  flex:1;
+textarea{resize:vertical;min-height:80px}
+
+button{
+cursor:pointer;
+border:none;
+background:#4f46e5;
+color:#fff;
+font-weight:bold;
+transition:.2s
 }
 
-/* Task card */
+button:hover{opacity:.9}
+
+#taskList{
+display:grid;
+gap:15px;
+margin-bottom:35px
+}
+
 .task{
-  background:white;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:10px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+padding:18px;
+display:flex;
+justify-content:space-between;
+gap:20px;
+flex-wrap:wrap
 }
 
-/* Makes completed tasks faded */
+.task-left{
+flex:1;
+min-width:240px
+}
+
+.task h3{margin-bottom:8px;word-break:break-word}
+
+.description{
+margin-bottom:10px;
+color:#555;
+white-space:pre-wrap;
+word-break:break-word
+}
+
+.task-buttons{
+display:flex;
+gap:10px;
+flex-wrap:wrap
+}
+
 .done{
-  opacity:.5;
-  text-decoration:line-through;
+opacity:.55;
+text-decoration:line-through
 }
 
 .badge{
-  padding:4px 10px;
-  border-radius:20px;
-  font-size:12px;
-  font-weight:bold;
+display:inline-block;
+padding:6px 12px;
+border-radius:999px;
+font-size:12px;
+font-weight:bold;
+margin-top:8px
 }
 
-.urgent{background:#ffcccc;}
-.high{background:#ffe5b4;}
-.medium{background:#d9ecff;}
-.low{background:#dff5d8;}
+.urgent{background:#ffd2d2}
+.high{background:#ffe5bd}
+.medium{background:#dbeaff}
+.low{background:#daf7d4}
 
 .warning{
-  color:red;
-  font-weight:bold;
+color:red;
+font-weight:bold;
+margin-top:8px
 }
 
+/* CALENDAR */
+
+.calendar-box{padding:20px}
+
+.calendar-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px
+}
+
+.calendar-header button{
+width:auto;
+padding:10px 16px
+}
+
+#monthTitle{
+font-size:22px;
+font-weight:bold
+}
+
+.calendar-grid{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:8px
+}
+
+.day-name{
+text-align:center;
+font-weight:bold;
+padding:10px 0
+}
+
+.day{
+background:#f5f5f5;
+border-radius:12px;
+min-height:90px;
+padding:8px;
+cursor:pointer;
+transition:.2s;
+overflow:hidden
+}
+
+.day:hover{background:#e6e6ff}
+
+.day-number{
+font-weight:bold;
+margin-bottom:5px
+}
+
+.calendar-task{
+background:#4f46e5;
+color:#fff;
+border-radius:6px;
+padding:2px 6px;
+margin-top:4px;
+font-size:11px;
+overflow:hidden;
+text-overflow:ellipsis;
+white-space:nowrap
+}
+
+/* POPUP */
+
+.popup{
+position:fixed;
+top:20px;
+right:20px;
+background:#fff;
+padding:20px;
+border-radius:16px;
+box-shadow:0 8px 24px rgba(0,0,0,.2);
+max-width:300px;
+z-index:999;
+animation:slide .3s ease
+}
+
+@keyframes slide{
+from{transform:translateX(80px);opacity:0}
+to{transform:translateX(0);opacity:1}
+}
+
+@media(max-width:700px){
+
+.task{flex-direction:column}
+
+.day{
+min-height:70px;
+font-size:12px
+}
+
+.calendar-grid{gap:5px}
+
+}
 </style>
 </head>
 
@@ -82,218 +205,286 @@ input[type=text]{
 
 <div class="wrap">
 
-<h1>Todo List</h1>
+<h1>Smart Todo App</h1>
 
-<!-- Area where user adds tasks -->
 <div class="add-row">
 
-  <!-- Task name input -->
-  <input type="text" id="taskInput" placeholder="Task">
+<input id="taskInput" type="text" placeholder="Task name">
 
-  <!-- Priority dropdown -->
-  <select id="priority">
-    <option value="urgent">Urgent</option>
-    <option value="high">High</option>
-    <option value="medium">Medium</option>
-    <option value="low">Low</option>
-  </select>
+<textarea id="descriptionInput" placeholder="Task description"></textarea>
 
-  <!-- Lets user pick BOTH date and time -->
-  <input type="datetime-local" id="dueDate">
+<select id="priority">
+<option value="urgent">Urgent</option>
+<option value="high">High</option>
+<option value="medium">Medium</option>
+<option value="low">Low</option>
+</select>
 
-  <button onclick="addTask()">Add</button>
+<input id="dueDate" type="datetime-local" step="60">
+
+<button onclick="addTask()">Add Task</button>
 
 </div>
 
-<!-- Tasks get inserted here -->
 <div id="taskList"></div>
+
+<div class="calendar-box">
+
+<div class="calendar-header">
+<button onclick="changeMonth(-1)">◀</button>
+<div id="monthTitle"></div>
+<button onclick="changeMonth(1)">▶</button>
+</div>
+
+<div class="calendar-grid" id="calendar"></div>
+
+</div>
 
 </div>
 
 <script>
 
-/*
-Stores every task.
-
-Each task looks like:
-{
-  id: unique number,
-  text: task name,
-  priority: urgent/high/etc,
-  dueDate: selected date/time,
-  done: true or false
-}
-*/
 let tasks=[];
 
-/* Adds a new task */
+const quotes=[
+"Great job!",
+"You’re crushing it!",
+"Keep going!",
+"Momentum creates success.",
+"Nice work!",
+"One more win today.",
+"Stay consistent.",
+"You did it!",
+"Progress matters.",
+"Excellent work!"
+];
+
+const $=id=>document.getElementById(id);
+
 function addTask(){
 
-  // Gets text from input
-  const text=document.getElementById("taskInput").value.trim();
+const text=$("taskInput").value.trim();
+if(!text)return;
 
-  // Gets selected priority
-  const priority=document.getElementById("priority").value;
+tasks.push({
+id:Date.now(),
+text,
+description:$("descriptionInput").value.trim(),
+priority:$("priority").value,
+dueDate:$("dueDate").value,
+done:false
+});
 
-  // Gets selected date + time
-  const dueDate=document.getElementById("dueDate").value;
+$("taskInput").value="";
+$("descriptionInput").value="";
 
-  // Stops empty tasks
-  if(!text)return;
+renderTasks();
+renderCalendar();
 
-  // Adds new task object into array
-  tasks.push({
-    id:Date.now(), // unique id using current time
-    text,
-    priority,
-    dueDate,
-    done:false
-  });
-
-  // Clears text box after adding
-  document.getElementById("taskInput").value="";
-
-  renderTasks();
 }
 
-/* Marks task done/undone */
 function toggleTask(id){
 
-  // Finds task with matching id
-  const task=tasks.find(t=>t.id===id);
+const task=tasks.find(t=>t.id===id);
 
-  // Switches true/false
-  task.done=!task.done;
+task.done=!task.done;
 
-  renderTasks();
+if(task.done)showPopup();
+
+renderTasks();
+renderCalendar();
+
 }
 
-/* Deletes task */
 function deleteTask(id){
 
-  // Keeps every task EXCEPT deleted one
-  tasks=tasks.filter(t=>t.id!==id);
+tasks=tasks.filter(t=>t.id!==id);
 
-  renderTasks();
+renderTasks();
+renderCalendar();
+
 }
 
-/* Calculates countdown */
-function getCountdown(dateStr){
+function getCountdown(date){
 
-  // If no due date exists
-  if(!dateStr)return null;
+if(!date)return "";
 
-  const now=new Date();
+const diff=new Date(date)-new Date();
 
-  // Converts selected date into real JS date
-  const due=new Date(dateStr);
+if(diff<=0)return "Overdue";
 
-  // Difference in milliseconds
-  const diff=due-now;
+const d=Math.floor(diff/86400000);
+const h=Math.floor(diff/3600000%24);
+const m=Math.floor(diff/60000%60);
 
-  // If task is overdue
-  if(diff<=0){
-    return{
-      text:"Overdue",
-      warning:true
-    };
-  }
+return `${d}d ${h}h ${m}m remaining`;
 
-  // Converts milliseconds into hours/minutes
-  const hours=Math.floor(diff/1000/60/60);
-  const minutes=Math.floor((diff/1000/60)%60);
-
-  return{
-    text:`${hours}h ${minutes}m remaining`,
-
-    // WARNING becomes true if under 3 hours
-    warning:hours<3
-  };
 }
 
-/* Draws all tasks onto page */
 function renderTasks(){
 
-  const taskList=document.getElementById("taskList");
+$("taskList").innerHTML=tasks.map(task=>{
 
-  // Clears old HTML before rebuilding
-  taskList.innerHTML="";
+const countdown=getCountdown(task.dueDate);
+const urgent=(new Date(task.dueDate)-new Date())<10800000;
 
-  tasks.forEach(task=>{
+return `
 
-    const countdown=getCountdown(task.dueDate);
+<div class="task ${task.done?"done":""}">
 
-    const div=document.createElement("div");
+<div class="task-left">
 
-    // Adds "done" class if completed
-    div.className=`task ${task.done?"done":""}`;
+<h3>${task.text}</h3>
 
-    div.innerHTML=`
+${task.description?
+`<div class="description">${task.description}</div>`:""}
 
-      <div>
+<span class="badge ${task.priority}">
+${task.priority.toUpperCase()}
+</span>
 
-        <strong>${task.text}</strong>
+<br><br>
 
-        <br><br>
+${task.dueDate?
+`<strong>Due:</strong>
+${new Date(task.dueDate).toLocaleString()}`:""}
 
-        <span class="badge ${task.priority}">
-          ${task.priority.toUpperCase()}
-        </span>
+<br><br>
 
-        <br><br>
+${countdown}
 
-        ${
-          task.dueDate
-          ?
-          `
-          Due:
-          ${new Date(task.dueDate).toLocaleString()}
-          `
-          :
-          ""
-        }
+${urgent&&!task.done&&task.dueDate?
+`<div class="warning">⚠ Due within 3 hours</div>`:""}
 
-        <br><br>
+</div>
 
-        ${
-          countdown
-          ?
-          countdown.text
-          :
-          ""
-        }
+<div class="task-buttons">
 
-        <br>
+<button onclick="toggleTask(${task.id})">
+${task.done?"Undo":"Done"}
+</button>
 
-        ${
-          countdown && countdown.warning && !task.done
-          ?
-          "⚠ Due within 3 hours"
-          :
-          ""
-        }
+<button onclick="deleteTask(${task.id})">
+Delete
+</button>
 
-      </div>
+</div>
 
-      <div>
+</div>
 
-        <button onclick="toggleTask(${task.id})">
-          ${task.done?"Undo":"Done"}
-        </button>
+`;
 
-        <button onclick="deleteTask(${task.id})">
-          Delete
-        </button>
+}).join("");
 
-      </div>
-    `;
-
-    taskList.appendChild(div);
-
-  });
 }
 
-/* Re-renders every minute so countdown updates */
+function showPopup(){
+
+const popup=document.createElement("div");
+
+popup.className="popup";
+
+popup.innerHTML=`
+<h3>Task Completed 🎉</h3>
+<br>
+<p>${quotes[Math.floor(Math.random()*quotes.length)]}</p>
+`;
+
+document.body.appendChild(popup);
+
+setTimeout(()=>popup.remove(),3000);
+
+}
+
+/* CALENDAR */
+
+let currentMonth=new Date().getMonth();
+let currentYear=new Date().getFullYear();
+
+const months=[
+"January","February","March","April","May","June",
+"July","August","September","October","November","December"
+];
+
+const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+function renderCalendar(){
+
+$("monthTitle").textContent=
+`${months[currentMonth]} ${currentYear}`;
+
+$("calendar").innerHTML=
+days.map(d=>`<div class="day-name">${d}</div>`).join("");
+
+const firstDay=
+new Date(currentYear,currentMonth,1).getDay();
+
+const daysInMonth=
+new Date(currentYear,currentMonth+1,0).getDate();
+
+for(let i=0;i<firstDay;i++){
+$("calendar").innerHTML+="<div></div>";
+}
+
+for(let day=1;day<=daysInMonth;day++){
+
+const dateObj=new Date(currentYear,currentMonth,day);
+
+const date=dateObj.toISOString().split("T")[0];
+
+const taskHTML=tasks
+.filter(t=>t.dueDate&&t.dueDate.startsWith(date))
+.map(t=>`<div class="calendar-task">${t.text}</div>`)
+.join("");
+
+$("calendar").innerHTML+=`
+
+<div class="day" onclick="selectDate('${date}')">
+
+<div class="day-number">${day}</div>
+
+${taskHTML}
+
+</div>
+
+`;
+
+}
+
+}
+
+function selectDate(date){
+
+$("dueDate").value=`${date}T12:00`;
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+}
+
+function changeMonth(num){
+
+currentMonth+=num;
+
+if(currentMonth<0){
+currentMonth=11;
+currentYear--;
+}
+
+if(currentMonth>11){
+currentMonth=0;
+currentYear++;
+}
+
+renderCalendar();
+
+}
+
+renderTasks();
+renderCalendar();
+
 setInterval(renderTasks,60000);
 
 </script>

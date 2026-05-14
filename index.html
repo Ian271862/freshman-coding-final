@@ -1,254 +1,302 @@
-<<<<<<< HEAD
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Todo List</title>
+
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-.wrap{padding:1rem 0}
-.add-row{display:flex;gap:8px;margin-bottom:1rem;align-items:center;flex-wrap:wrap}
-.add-row input[type=text]{flex:1;min-width:140px}
-.add-row select{width:110px}
-.add-row input[type=date]{width:140px}
-.filters{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
-.filters button{font-size:12px;padding:4px 10px;border-radius:20px}
-.filters button.active{background:var(--color-background-secondary);font-weight:500}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.25rem}
-.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;text-align:center}
-.stat-n{font-size:22px;font-weight:500;color:var(--color-text-primary)}
-.stat-l{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
-.task-list{display:flex;flex-direction:column;gap:6px}
-.task{display:flex;align-items:flex-start;gap:10px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;transition:opacity .2s}
-.task.done{opacity:.5}
-.task.done .task-text{text-decoration:line-through;color:var(--color-text-secondary)}
-.task-main{display:flex;align-items:center;gap:10px;flex:1;min-width:0;flex-wrap:wrap}
-.cb{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--color-border-secondary);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--color-background-primary);margin-top:1px}
-.cb.checked{background:var(--color-background-success);border-color:var(--color-border-success)}
-.cb svg{display:none}
-.cb.checked svg{display:block}
-.badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;flex-shrink:0}
-.p-urgent{background:#FCEBEB;color:#A32D2D}
-.p-high{background:#FAEEDA;color:#633806}
-.p-medium{background:#E6F1FB;color:#0C447C}
-.p-low{background:#EAF3DE;color:#27500A}
-.task-text{font-size:14px;color:var(--color-text-primary);flex:1;min-width:80px}
-.task-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
-.due-label{font-size:11px;font-weight:500}
-.due-label.upcoming{color:var(--color-text-secondary)}
-.due-label.soon{color:#633806}
-.due-label.today{color:#A32D2D}
-.due-label.overdue{color:#A32D2D}
-.countdown{font-size:12px;font-family:var(--font-mono);white-space:nowrap}
-.countdown.upcoming{color:var(--color-text-tertiary)}
-.countdown.soon{color:#854F0B}
-.countdown.today{color:#A32D2D;font-weight:500}
-.countdown.overdue{color:#A32D2D;font-weight:500}
-.del{width:24px;height:24px;border:none;background:none;cursor:pointer;color:var(--color-text-tertiary);font-size:16px;flex-shrink:0;border-radius:4px;display:flex;align-items:center;justify-content:center;margin-top:0}
-.del:hover{background:var(--color-background-danger);color:var(--color-text-danger)}
-.empty{text-align:center;color:var(--color-text-tertiary);font-size:14px;padding:2rem 0}
-.section-label{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:1rem 0 6px;padding-left:2px}
+
+/* Makes sizing easier */
+*{
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f4f4f4;
+  padding:20px;
+}
+
+.wrap{
+  max-width:800px;
+  margin:auto;
+}
+
+.add-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+
+input,select,button{
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+input[type=text]{
+  flex:1;
+}
+
+/* Task card */
+.task{
+  background:white;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+/* Makes completed tasks faded */
+.done{
+  opacity:.5;
+  text-decoration:line-through;
+}
+
+.badge{
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:bold;
+}
+
+.urgent{background:#ffcccc;}
+.high{background:#ffe5b4;}
+.medium{background:#d9ecff;}
+.low{background:#dff5d8;}
+
+.warning{
+  color:red;
+  font-weight:bold;
+}
+
 </style>
-<h2 class="sr-only">Smart to-do list with priority levels, due dates, and live countdown timers</h2>
+</head>
+
+<body>
+
 <div class="wrap">
-  <div class="stats">
-    <div class="stat"><div class="stat-n" id="s-total">0</div><div class="stat-l">Total</div></div>
-    <div class="stat"><div class="stat-n" id="s-urgent" style="color:#A32D2D">0</div><div class="stat-l">Urgent</div></div>
-    <div class="stat"><div class="stat-n" id="s-open">0</div><div class="stat-l">Open</div></div>
-    <div class="stat"><div class="stat-n" id="s-done" style="color:var(--color-text-success)">0</div><div class="stat-l">Done</div></div>
-  </div>
 
-  <div class="add-row">
-    <input id="taskInput" type="text" placeholder="Add a task..." />
-    <select id="priSel">
-      <option value="urgent">Urgent</option>
-      <option value="high">High</option>
-      <option value="medium" selected>Medium</option>
-      <option value="low">Low</option>
-    </select>
-    <input id="dueInput" type="datetime-local" style="width:175px" />
-    <button onclick="addTask()">Add</button>
-  </div>
+<h1>Todo List</h1>
 
-  <div class="filters">
-    <span style="font-size:13px;color:var(--color-text-secondary);align-self:center;margin-right:2px">Show:</span>
-    <button class="active" data-f="all" onclick="setFilter('all',this)">All</button>
-    <button data-f="open" onclick="setFilter('open',this)">Open</button>
-    <button data-f="done" onclick="setFilter('done',this)">Done</button>
-    <button data-f="urgent" onclick="setFilter('urgent',this)">Urgent</button>
-    <button data-f="high" onclick="setFilter('high',this)">High</button>
-    <button data-f="medium" onclick="setFilter('medium',this)">Medium</button>
-    <button data-f="low" onclick="setFilter('low',this)">Low</button>
-  </div>
+<!-- Area where user adds tasks -->
+<div class="add-row">
 
-  <div id="list"></div>
+  <!-- Task name input -->
+  <input type="text" id="taskInput" placeholder="Task">
+
+  <!-- Priority dropdown -->
+  <select id="priority">
+    <option value="urgent">Urgent</option>
+    <option value="high">High</option>
+    <option value="medium">Medium</option>
+    <option value="low">Low</option>
+  </select>
+
+  <!-- Lets user pick BOTH date and time -->
+  <input type="datetime-local" id="dueDate">
+
+  <button onclick="addTask()">Add</button>
+
 </div>
-=======
+
+<!-- Tasks get inserted here -->
+<div id="taskList"></div>
+
+</div>
+
 <script>
-const priOrder = {urgent:0,high:1,medium:2,low:3};
-const priLabel = {urgent:'Urgent',high:'High',medium:'Medium',low:'Low'};
 
-function todayPlus(days, hour=9) {
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  d.setHours(hour, 0, 0, 0);
-  return d.toISOString().slice(0,16);
+/*
+Stores every task.
+
+Each task looks like:
+{
+  id: unique number,
+  text: task name,
+  priority: urgent/high/etc,
+  dueDate: selected date/time,
+  done: true or false
 }
+*/
+let tasks=[];
 
-let tasks = [
-  {id:1, text:'Review project proposal', pri:'urgent', due: todayPlus(0, 17), done:false},
-  {id:2, text:'Send weekly status update', pri:'high', due: todayPlus(1, 10), done:false},
-  {id:3, text:'Book team lunch', pri:'medium', due: todayPlus(5, 12), done:false},
-  {id:4, text:'Update password manager', pri:'low', due: todayPlus(-2, 9), done:false},
-  {id:5, text:'File expense report', pri:'high', due: todayPlus(-1, 17), done:false},
-];
-let nextId = 6;
-let filter = 'all';
+/* Adds a new task */
+function addTask(){
 
-function setFilter(f, btn) {
-  filter = f;
-  document.querySelectorAll('.filters button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  render();
-}
+  // Gets text from input
+  const text=document.getElementById("taskInput").value.trim();
 
-function addTask() {
-  const txt = document.getElementById('taskInput').value.trim();
-  if (!txt) return;
-  tasks.push({id:nextId++, text:txt, pri:document.getElementById('priSel').value, due:document.getElementById('dueInput').value, done:false});
-  document.getElementById('taskInput').value = '';
-  render();
-}
+  // Gets selected priority
+  const priority=document.getElementById("priority").value;
 
-document.getElementById('taskInput').addEventListener('keydown', e => { if(e.key==='Enter') addTask(); });
+  // Gets selected date + time
+  const dueDate=document.getElementById("dueDate").value;
 
-function toggle(id) {
-  const t = tasks.find(t=>t.id===id);
-  if(t) t.done = !t.done;
-  render();
-}
+  // Stops empty tasks
+  if(!text)return;
 
-function del(id) {
-  tasks = tasks.filter(t=>t.id!==id);
-  render();
-}
-
-function pad(n){ return String(Math.floor(n)).padStart(2,'0'); }
-
-function formatCountdown(dueStr, done) {
-  if (!dueStr) return null;
-  const due = new Date(dueStr);
-  const now = new Date();
-  const diffMs = due - now;
-  const absSec = Math.abs(diffMs) / 1000;
-  const days = Math.floor(absSec / 86400);
-  const hrs  = Math.floor((absSec % 86400) / 3600);
-  const mins = Math.floor((absSec % 3600) / 60);
-  const secs = Math.floor(absSec % 60);
-
-  let label, timerStr, cls;
-
-  if (diffMs < 0) {
-    if (done) {
-      label = 'Completed late';
-      timerStr = days > 0 ? `${days}d ${pad(hrs)}h ${pad(mins)}m ago` : `${pad(hrs)}h ${pad(mins)}m ${pad(secs)}s ago`;
-      cls = 'upcoming';
-    } else {
-      label = 'Overdue by';
-      timerStr = days > 0 ? `${days}d ${pad(hrs)}h ${pad(mins)}m ${pad(secs)}s` : `${pad(hrs)}h ${pad(mins)}m ${pad(secs)}s`;
-      cls = 'overdue';
-    }
-  } else {
-    const totalHrs = days * 24 + hrs;
-    if (totalHrs < 2) {
-      label = 'Due in';
-      timerStr = `${pad(hrs)}h ${pad(mins)}m ${pad(secs)}s`;
-      cls = 'today';
-    } else if (days === 0) {
-      label = 'Due today in';
-      timerStr = `${pad(hrs)}h ${pad(mins)}m ${pad(secs)}s`;
-      cls = 'soon';
-    } else if (days === 1) {
-      label = 'Due tomorrow in';
-      timerStr = `${days}d ${pad(hrs)}h ${pad(mins)}m ${pad(secs)}s`;
-      cls = 'soon';
-    } else {
-      label = 'Due in';
-      timerStr = `${days}d ${pad(hrs)}h ${pad(mins)}m ${pad(secs)}s`;
-      cls = 'upcoming';
-    }
-  }
-  return { label, timerStr, cls };
-}
-
-function taskHTML(t) {
-  const cd = formatCountdown(t.due, t.done);
-  const rightHTML = cd ? `
-    <div class="task-right">
-      <span class="due-label ${t.done ? 'upcoming' : cd.cls}">${cd.label}</span>
-      <span class="countdown ${t.done ? 'upcoming' : cd.cls}" data-id="${t.id}">${cd.timerStr}</span>
-    </div>` : '';
-  return `<div class="task${t.done?' done':''}" id="task-${t.id}">
-    <div class="cb${t.done?' checked':''}" onclick="toggle(${t.id})">
-      <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </div>
-    <div class="task-main">
-      <span class="badge p-${t.pri}">${priLabel[t.pri]}</span>
-      <span class="task-text">${t.text}</span>
-    </div>
-    ${rightHTML}
-    <button class="del" onclick="del(${t.id})">&#x2715;</button>
-  </div>`;
-}
-
-function render() {
-  let visible = [...tasks];
-  if (filter === 'open') visible = visible.filter(t=>!t.done);
-  else if (filter === 'done') visible = visible.filter(t=>t.done);
-  else if (['urgent','high','medium','low'].includes(filter)) visible = visible.filter(t=>t.pri===filter);
-
-  visible.sort((a,b) => {
-    if (a.done !== b.done) return a.done ? 1 : -1;
-    return priOrder[a.pri] - priOrder[b.pri];
+  // Adds new task object into array
+  tasks.push({
+    id:Date.now(), // unique id using current time
+    text,
+    priority,
+    dueDate,
+    done:false
   });
 
-  const open = visible.filter(t=>!t.done);
-  const done = visible.filter(t=>t.done);
+  // Clears text box after adding
+  document.getElementById("taskInput").value="";
 
-  let html = '';
-  if (!visible.length) {
-    html = '<div class="empty">No tasks here</div>';
-  } else {
-    html += open.map(t => taskHTML(t)).join('');
-    if (done.length) {
-      html += `<div class="section-label">Completed</div>`;
-      html += done.map(t => taskHTML(t)).join('');
-    }
-  }
-
-  document.getElementById('list').innerHTML = `<div class="task-list">${html}</div>`;
-  document.getElementById('s-total').textContent = tasks.length;
-  document.getElementById('s-urgent').textContent = tasks.filter(t=>t.pri==='urgent'&&!t.done).length;
-  document.getElementById('s-open').textContent = tasks.filter(t=>!t.done).length;
-  document.getElementById('s-done').textContent = tasks.filter(t=>t.done).length;
+  renderTasks();
 }
 
-function tick() {
-  const els = document.querySelectorAll('.countdown[data-id]');
-  els.forEach(el => {
-    const id = parseInt(el.dataset.id);
-    const t = tasks.find(t=>t.id===id);
-    if (!t || !t.due) return;
-    const cd = formatCountdown(t.due, t.done);
-    if (!cd) return;
-    el.textContent = cd.timerStr;
-    el.className = `countdown ${t.done ? 'upcoming' : cd.cls}`;
-    const label = el.previousElementSibling;
-    if (label) {
-      label.textContent = cd.label;
-      label.className = `due-label ${t.done ? 'upcoming' : cd.cls}`;
-    }
+/* Marks task done/undone */
+function toggleTask(id){
+
+  // Finds task with matching id
+  const task=tasks.find(t=>t.id===id);
+
+  // Switches true/false
+  task.done=!task.done;
+
+  renderTasks();
+}
+
+/* Deletes task */
+function deleteTask(id){
+
+  // Keeps every task EXCEPT deleted one
+  tasks=tasks.filter(t=>t.id!==id);
+
+  renderTasks();
+}
+
+/* Calculates countdown */
+function getCountdown(dateStr){
+
+  // If no due date exists
+  if(!dateStr)return null;
+
+  const now=new Date();
+
+  // Converts selected date into real JS date
+  const due=new Date(dateStr);
+
+  // Difference in milliseconds
+  const diff=due-now;
+
+  // If task is overdue
+  if(diff<=0){
+    return{
+      text:"Overdue",
+      warning:true
+    };
+  }
+
+  // Converts milliseconds into hours/minutes
+  const hours=Math.floor(diff/1000/60/60);
+  const minutes=Math.floor((diff/1000/60)%60);
+
+  return{
+    text:`${hours}h ${minutes}m remaining`,
+
+    // WARNING becomes true if under 3 hours
+    warning:hours<3
+  };
+}
+
+/* Draws all tasks onto page */
+function renderTasks(){
+
+  const taskList=document.getElementById("taskList");
+
+  // Clears old HTML before rebuilding
+  taskList.innerHTML="";
+
+  tasks.forEach(task=>{
+
+    const countdown=getCountdown(task.dueDate);
+
+    const div=document.createElement("div");
+
+    // Adds "done" class if completed
+    div.className=`task ${task.done?"done":""}`;
+
+    div.innerHTML=`
+
+      <div>
+
+        <strong>${task.text}</strong>
+
+        <br><br>
+
+        <span class="badge ${task.priority}">
+          ${task.priority.toUpperCase()}
+        </span>
+
+        <br><br>
+
+        ${
+          task.dueDate
+          ?
+          `
+          Due:
+          ${new Date(task.dueDate).toLocaleString()}
+          `
+          :
+          ""
+        }
+
+        <br><br>
+
+        ${
+          countdown
+          ?
+          countdown.text
+          :
+          ""
+        }
+
+        <br>
+
+        ${
+          countdown && countdown.warning && !task.done
+          ?
+          "⚠ Due within 3 hours"
+          :
+          ""
+        }
+
+      </div>
+
+      <div>
+
+        <button onclick="toggleTask(${task.id})">
+          ${task.done?"Undo":"Done"}
+        </button>
+
+        <button onclick="deleteTask(${task.id})">
+          Delete
+        </button>
+
+      </div>
+    `;
+
+    taskList.appendChild(div);
+
   });
 }
 
-render();
-setInterval(tick, 1000);
+/* Re-renders every minute so countdown updates */
+setInterval(renderTasks,60000);
+
 </script>
 
-
->>>>>>> 98fc8397f5a86675d34cd92e208ab49ba80db7cb
+</body>
+</html>

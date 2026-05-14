@@ -23,9 +23,40 @@ const $=id=>document.getElementById(id);
 
 async function enableNotifications(){
 
-if(!("Notification" in window)){
-alert("Notifications not supported");
+if(!("Notification" in window")){
+alert("Notifications are not supported on this device.");
 return;
+}
+
+if(Notification.permission==="granted"){
+
+new Notification(
+"Notifications Already Enabled 🔔",
+{
+body:"Smart reminders are active."
+}
+);
+
+return;
+
+}
+
+if(Notification.permission==="denied"){
+
+const retry=confirm(
+"Notifications were previously blocked.\n\nPress OK to open browser settings so you can allow notifications."
+);
+
+if(retry){
+
+alert(
+"1. Click the lock icon near the URL bar.\n2. Allow Notifications.\n3. Refresh the page."
+);
+
+}
+
+return;
+
 }
 
 const permission=
@@ -42,7 +73,9 @@ body:"Smart reminders are now active."
 
 }else{
 
-alert("Notifications were denied");
+alert(
+"You chose not to enable notifications."
+);
 
 }
 
@@ -54,14 +87,31 @@ alert("Notifications were denied");
 
 async function getWeatherTasks(){
 
+if(Notification.permission==="denied"){
+
+const retry=confirm(
+"Notifications are blocked.\n\nWould you like instructions to re-enable them?"
+);
+
+if(retry){
+
+alert(
+"1. Click the lock icon near the URL.\n2. Allow Notifications and Location.\n3. Refresh the website."
+);
+
+}
+
+}
+
 if(!navigator.geolocation){
 
-alert("Geolocation not supported");
+alert("Geolocation is not supported.");
 return;
 
 }
 
 navigator.geolocation.getCurrentPosition(
+
 async position=>{
 
 const lat=position.coords.latitude;
@@ -75,12 +125,23 @@ const response=await fetch(
 
 const data=await response.json();
 
+if(data.cod!=="200"){
+
+alert(
+"Weather API failed. Check your API key."
+);
+
+return;
+
+}
+
 const forecast=data.list[0];
 
 const weather=
 forecast.weather[0].main.toLowerCase();
 
-const temp=forecast.main.temp;
+const temp=
+forecast.main.temp;
 
 if(weather.includes("rain")){
 
@@ -138,6 +199,10 @@ sendNotification(
 
 }
 
+alert(
+"Weather smart tasks updated successfully."
+);
+
 renderTasks();
 renderCalendar();
 
@@ -146,19 +211,31 @@ renderCalendar();
 console.error(error);
 
 alert(
-"Weather API failed. Check your API key."
+"Could not connect to weather service."
 );
 
 }
 
 },
+
 error=>{
 
+if(error.code===1){
+
 alert(
-"Location access denied."
+"Location access denied.\n\nEnable location permissions in browser settings."
+);
+
+}else{
+
+alert(
+"Unable to get location."
 );
 
 }
+
+}
+
 );
 
 }

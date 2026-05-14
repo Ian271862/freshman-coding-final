@@ -64,7 +64,10 @@ flex:1;
 min-width:240px
 }
 
-.task h3{margin-bottom:8px;word-break:break-word}
+.task h3{
+margin-bottom:8px;
+word-break:break-word
+}
 
 .description{
 margin-bottom:10px;
@@ -264,6 +267,7 @@ const $=id=>document.getElementById(id);
 function addTask(){
 
 const text=$("taskInput").value.trim();
+
 if(!text)return;
 
 tasks.push({
@@ -326,7 +330,9 @@ function renderTasks(){
 $("taskList").innerHTML=tasks.map(task=>{
 
 const countdown=getCountdown(task.dueDate);
-const urgent=(new Date(task.dueDate)-new Date())<10800000;
+
+const urgent=
+(new Date(task.dueDate)-new Date())<10800000;
 
 return `
 
@@ -406,7 +412,9 @@ const months=[
 "July","August","September","October","November","December"
 ];
 
-const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const days=[
+"Sun","Mon","Tue","Wed","Thu","Fri","Sat"
+];
 
 function renderCalendar(){
 
@@ -428,9 +436,11 @@ $("calendar").innerHTML+="<div></div>";
 
 for(let day=1;day<=daysInMonth;day++){
 
-const dateObj=new Date(currentYear,currentMonth,day);
+const dateObj=
+new Date(currentYear,currentMonth,day);
 
-const date=dateObj.toISOString().split("T")[0];
+const date=
+dateObj.toISOString().split("T")[0];
 
 const taskHTML=tasks
 .filter(t=>t.dueDate&&t.dueDate.startsWith(date))
@@ -453,9 +463,15 @@ ${taskHTML}
 
 }
 
+/* FIXED DATE + TIME FUNCTION */
+
 function selectDate(date){
 
-$("dueDate").value=`${date}T12:00`;
+const currentTime=
+$("dueDate").value.split("T")[1]||"12:00";
+
+$("dueDate").value=
+`${date}T${currentTime}`;
 
 window.scrollTo({
 top:0,

@@ -33,6 +33,8 @@ done:false
 
 $("taskInput").value="";
 $("descriptionInput").value="";
+$("dueDate").value="";
+$("recurring").value="none";
 
 renderTasks();
 renderCalendar();
@@ -45,13 +47,32 @@ const task=tasks.find(t=>t.id===id);
 
 if(!task)return;
 
-if(!task.done){
+if(task.done){
+
+task.done=false;
+
+}else{
+
+if(task.recurring && task.recurring!=="none"){
+
 handleRecurring(task);
+
+tasks=tasks.filter(t=>t.id!==task.id);
+
+showPopup();
+
+renderTasks();
+renderCalendar();
+
+return;
+
 }
 
-task.done=!task.done;
+task.done=true;
 
-if(task.done)showPopup();
+showPopup();
+
+}
 
 renderTasks();
 renderCalendar();

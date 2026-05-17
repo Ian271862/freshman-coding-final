@@ -271,8 +271,10 @@ function editTask(id) {
     );
 
   if (newDescription !== null) {
+
     task.description =
       newDescription;
+
   }
 
   renderTasks();
@@ -399,7 +401,7 @@ Math.random() * quotes.length
 }
 
 /* =========================
-   CALENDAR VIEW
+   CALENDAR
 ========================= */
 
 function setView(view) {
@@ -414,6 +416,8 @@ function renderCalendar() {
 
   const calendar =
     $("calendar");
+
+  if (!calendar) return;
 
   calendar.innerHTML = "";
 
@@ -676,7 +680,12 @@ function openMonth(index) {
 
 function selectDate(date) {
 
-  $("dueDate").value =
+  const dueDate =
+    document.getElementById("dueDate");
+
+  if (!dueDate) return;
+
+  dueDate.value =
     `${date}T12:00`;
 
   window.scrollTo({
@@ -691,6 +700,44 @@ function changeMonth(num) {
   currentDate.setMonth(
     currentDate.getMonth() + num
   );
+
+  renderCalendar();
+
+}
+
+function changeViewDate(direction) {
+
+  if (currentView === "month") {
+
+    currentDate.setMonth(
+      currentDate.getMonth() + direction
+    );
+
+  }
+
+  else if (currentView === "week") {
+
+    currentDate.setDate(
+      currentDate.getDate() + (7 * direction)
+    );
+
+  }
+
+  else if (currentView === "day") {
+
+    currentDate.setDate(
+      currentDate.getDate() + direction
+    );
+
+  }
+
+  else if (currentView === "year") {
+
+    currentDate.setFullYear(
+      currentDate.getFullYear() + direction
+    );
+
+  }
 
   renderCalendar();
 

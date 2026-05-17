@@ -120,6 +120,7 @@ background:#fafafa;
 border-radius:16px;
 padding:20px;
 border:1px solid #ddd;
+overflow:hidden;
 }
 
 .calendar-header{
@@ -169,6 +170,7 @@ padding:10px;
 text-align:center;
 font-weight:bold;
 border-radius:8px;
+min-width:0;
 }
 
 .day{
@@ -182,6 +184,7 @@ transition:.2s;
 overflow:hidden;
 display:flex;
 flex-direction:column;
+min-width:0;
 }
 
 .day:hover{
@@ -257,7 +260,16 @@ font-weight:bold;
 
 .month-view,
 .week-view{
-grid-template-columns:repeat(2,1fr);
+grid-template-columns:repeat(7,minmax(90px,1fr));
+}
+
+.calendar-grid{
+overflow-x:auto;
+}
+
+.day-name,
+.day{
+min-width:90px;
 }
 
 .year-view{
@@ -266,6 +278,32 @@ grid-template-columns:repeat(2,1fr);
 
 .weather-buttons{
 grid-template-columns:1fr;
+}
+
+.calendar-header{
+flex-direction:column;
+align-items:stretch;
+}
+
+#monthTitle{
+text-align:center;
+font-size:20px;
+}
+
+.view-select{
+max-width:100%;
+}
+
+.task{
+flex-direction:column;
+}
+
+.task-buttons{
+width:100%;
+}
+
+.task-buttons button{
+flex:1;
 }
 
 }
@@ -593,218 +631,6 @@ ${name}
 });
 
 }
-
-}
-
-function openMonth(index){
-
-currentDate.setMonth(index);
-
-document.getElementById("calendarView").value =
-"month";
-
-renderCalendar();
-
-}
-
-function changeViewDate(direction){
-
-const view =
-document.getElementById("calendarView").value;
-
-if(view === "month"){
-
-currentDate.setMonth(
-currentDate.getMonth()+direction
-);
-
-}
-
-else if(view === "week"){
-
-currentDate.setDate(
-currentDate.getDate()+(direction*7)
-);
-
-}
-
-else if(view === "day"){
-
-currentDate.setDate(
-currentDate.getDate()+direction
-);
-
-}
-
-else if(view === "year"){
-
-currentDate.setFullYear(
-currentDate.getFullYear()+direction
-);
-
-}
-
-renderCalendar();
-
-}
-
-function selectDate(date){
-
-document.getElementById("dueDate").value =
-`${date}T12:00`;
-
-window.scrollTo({
-top:0,
-behavior:"smooth"
-});
-
-}
-
-function addTask(){
-
-const taskInput =
-document.getElementById("taskInput");
-
-const descriptionInput =
-document.getElementById("descriptionInput");
-
-const priority =
-document.getElementById("priority");
-
-const dueDate =
-document.getElementById("dueDate");
-
-const recurring =
-document.getElementById("recurring");
-
-if(taskInput.value.trim()===""){
-
-alert("Please enter a task.");
-return;
-
-}
-
-tasks.push({
-id:Date.now(),
-name:taskInput.value,
-description:descriptionInput.value,
-priority:priority.value,
-dueDate:dueDate.value,
-recurring:recurring.value
-});
-
-taskInput.value="";
-descriptionInput.value="";
-dueDate.value="";
-recurring.value="none";
-
-renderTasks();
-renderCalendar();
-
-}
-
-function deleteTask(id){
-
-tasks = tasks.filter(
-task=>task.id !== id
-);
-
-renderTasks();
-renderCalendar();
-
-}
-
-function editTask(id){
-
-const task =
-tasks.find(t=>t.id===id);
-
-if(!task)return;
-
-const newName =
-prompt("Edit task name:", task.name);
-
-if(newName===null)return;
-
-const newDescription =
-prompt(
-"Edit description:",
-task.description
-);
-
-task.name = newName;
-task.description = newDescription;
-
-renderTasks();
-renderCalendar();
-
-}
-
-function renderTasks(){
-
-const taskList =
-document.getElementById("taskList");
-
-taskList.innerHTML = "";
-
-tasks.forEach(task=>{
-
-taskList.innerHTML += `
-
-<div class="task">
-
-<div class="task-left">
-
-<h3>${task.name}</h3>
-
-<p>${task.description}</p>
-
-<br>
-
-<span class="badge ${task.priority}">
-${task.priority.toUpperCase()}
-</span>
-
-<div class="repeat">
-🔁 ${task.recurring}
-</div>
-
-<br>
-
-<strong>Due:</strong>
-${task.dueDate || "No due date"}
-
-</div>
-
-<div class="task-buttons">
-
-<button onclick="editTask(${task.id})">
-Edit
-</button>
-
-<button onclick="deleteTask(${task.id})">
-Delete
-</button>
-
-</div>
-
-</div>
-
-`;
-
-});
-
-}
-
-function enableNotifications(){
-
-alert("Notifications enabled!");
-
-}
-
-function getWeatherTasks(){
-
-alert("Weather smart tasks enabled!");
 
 }
 

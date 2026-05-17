@@ -7,8 +7,6 @@
 
 <style>
 
-/* (YOUR ORIGINAL CSS — UNCHANGED) */
-
 *{
 box-sizing:border-box;
 margin:0;
@@ -68,7 +66,9 @@ font-weight:bold;
 transition:.2s;
 }
 
-button:hover{opacity:.9;}
+button:hover{
+opacity:.9;
+}
 
 .weather-buttons{
 display:grid;
@@ -93,7 +93,10 @@ flex-wrap:wrap;
 border:1px solid #e3e6f0;
 }
 
-.task-left{flex:1;min-width:240px;}
+.task-left{
+flex:1;
+min-width:240px;
+}
 
 .task-buttons{
 display:flex;
@@ -128,13 +131,28 @@ width:auto;
 padding:10px 18px;
 }
 
-#monthTitle{font-size:24px;font-weight:bold;}
+#monthTitle{
+font-size:24px;
+font-weight:bold;
+}
 
-.calendar-grid{display:grid;gap:8px;}
+.calendar-grid{
+display:grid;
+gap:8px;
+}
 
-.month-view,.week-view{grid-template-columns:repeat(7,1fr);}
-.year-view{grid-template-columns:repeat(4,1fr);}
-.day-view{grid-template-columns:1fr;}
+.month-view,
+.week-view{
+grid-template-columns:repeat(7,1fr);
+}
+
+.year-view{
+grid-template-columns:repeat(4,1fr);
+}
+
+.day-view{
+grid-template-columns:1fr;
+}
 
 .day-name{
 background:#dde3f8;
@@ -155,7 +173,12 @@ display:flex;
 flex-direction:column;
 }
 
-.day-number{font-size:12px;font-weight:bold;color:#666;margin-bottom:6px;}
+.day-number{
+font-size:12px;
+font-weight:bold;
+color:#666;
+margin-bottom:6px;
+}
 
 .calendar-task{
 background:#4f46e5;
@@ -176,18 +199,58 @@ cursor:pointer;
 border:1px solid #ddd;
 }
 
-.badge{display:inline-block;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:bold;margin-top:10px;}
+.badge{
+display:inline-block;
+padding:5px 10px;
+border-radius:999px;
+font-size:12px;
+font-weight:bold;
+margin-top:10px;
+}
 
-.urgent{background:#ffd2d2;}
-.high{background:#ffe5bd;}
-.medium{background:#dbeaff;}
-.low{background:#daf7d4;}
+.urgent{
+background:#ffd2d2;
+}
+
+.high{
+background:#ffe5bd;
+}
+
+.medium{
+background:#dbeaff;
+}
+
+.low{
+background:#daf7d4;
+}
 
 .repeat{
 margin-top:10px;
 font-size:13px;
 color:#4f46e5;
 font-weight:bold;
+}
+
+.empty{
+background:transparent;
+}
+
+@media(max-width:700px){
+
+.month-view,
+.week-view{
+grid-template-columns:repeat(2,1fr);
+}
+
+.year-view{
+grid-template-columns:repeat(2,1fr);
+}
+
+.calendar-header{
+flex-direction:column;
+align-items:stretch;
+}
+
 }
 
 </style>
@@ -202,12 +265,13 @@ font-weight:bold;
 <div class="add-row">
 
 <input id="taskInput" type="text" placeholder="Task name">
+
 <textarea id="descriptionInput" placeholder="Task description"></textarea>
 
 <select id="priority">
 <option value="urgent">Urgent</option>
 <option value="high">High</option>
-<option value="medium">Medium</option>
+<option value="medium" selected>Medium</option>
 <option value="low">Low</option>
 </select>
 
@@ -237,7 +301,9 @@ font-weight:bold;
 <div class="calendar-header">
 
 <button onclick="changeViewDate(-1)">◀</button>
+
 <div id="monthTitle"></div>
+
 <button onclick="changeViewDate(1)">▶</button>
 
 <select id="calendarView" onchange="renderCalendar()">
@@ -255,9 +321,7 @@ font-weight:bold;
 
 </div>
 
-function addTask(){
-alert("JS IS WORKING");
-}
+<script src="script.js"></script>
 
 </body>
 </html>

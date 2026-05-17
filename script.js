@@ -98,7 +98,7 @@ priority
 dueDate:
 dueDate && dueDate.value
 ? dueDate.value
-: currentDate.toISOString(),
+: new Date().toISOString(),
 
 recurring:
 recurring
@@ -121,8 +121,6 @@ recurring.value="none";
 
 renderTasks();
 renderCalendar();
-
-console.log("Task added successfully");
 
 }catch(error){
 
@@ -199,6 +197,8 @@ function renderTasks(){
 const taskList =
 document.getElementById("taskList");
 
+if(!taskList)return;
+
 taskList.innerHTML="";
 
 tasks.forEach(task=>{
@@ -235,21 +235,15 @@ ${new Date(task.dueDate).toLocaleString()}
 
 <div class="task-buttons">
 
-<button onclick="
-toggleTask(${task.id})
-">
+<button onclick="toggleTask(${task.id})">
 ${task.done ? "Undo" : "Done"}
 </button>
 
-<button onclick="
-editTask(${task.id})
-">
+<button onclick="editTask(${task.id})">
 Edit
 </button>
 
-<button onclick="
-deleteTask(${task.id})
-">
+<button onclick="deleteTask(${task.id})">
 Delete
 </button>
 
@@ -265,16 +259,16 @@ Delete
 
 function selectDate(date){
 
+const dueDateInput =
+document.getElementById("dueDate");
+
+if(!dueDateInput)return;
+
 const currentTime =
-document
-.getElementById("dueDate")
-.value
-.split("T")[1]
+dueDateInput.value.split("T")[1]
 || "12:00";
 
-document
-.getElementById("dueDate")
-.value =
+dueDateInput.value =
 `${date}T${currentTime}`;
 
 window.scrollTo({
@@ -355,6 +349,8 @@ const view =
 document.getElementById(
 "calendarView"
 ).value;
+
+if(!calendar || !monthTitle)return;
 
 calendar.innerHTML="";
 
@@ -450,28 +446,8 @@ calendar.classList.add(
 "week-view"
 );
 
-const weekNumber =
-Math.ceil(
-currentDate.getDate()/7
-);
-
-const weekNames = [
-"First",
-"Second",
-"Third",
-"Fourth",
-"Fifth"
-];
-
-monthTitle.innerHTML = `
-${monthNames[month]} ${year}
-<br>
-<span class="week-label">
-${weekNames[weekNumber-1]}
-Week of
-${monthNames[month]}
-</span>
-`;
+monthTitle.textContent =
+`${monthNames[month]} ${year}`;
 
 for(let i=0;i<7;i++){
 

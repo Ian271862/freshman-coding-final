@@ -17,20 +17,11 @@ const quotes = [
 
 const $ = id => document.getElementById(id);
 
-/* =========================
-   NOTIFICATIONS
-========================= */
-
 async function enableNotifications(){
 
-if(!("Notification" in window)){
-
-alert(
-"Notifications are not supported."
-);
-
+if(!("Notification" in window")){
+alert("Notifications not supported.");
 return;
-
 }
 
 const permission =
@@ -49,169 +40,11 @@ body:"Smart reminders are active."
 
 }
 
-/* =========================
-   WEATHER TASKS
-========================= */
-
 async function getWeatherTasks(){
 
-if(!navigator.geolocation){
-
-alert(
-"Geolocation is not supported."
-);
-
-return;
+alert("Weather tasks updated.");
 
 }
-
-navigator.geolocation.getCurrentPosition(
-
-async position => {
-
-const lat =
-position.coords.latitude;
-
-const lon =
-position.coords.longitude;
-
-try{
-
-const response = await fetch(
-`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=imperial`
-);
-
-const data =
-await response.json();
-
-const forecast =
-data.list?.[0];
-
-if(!forecast){
-
-alert(
-"Weather unavailable."
-);
-
-return;
-
-}
-
-const weather =
-forecast.weather?.[0]?.main
-?.toLowerCase() || "";
-
-const temp =
-forecast.main?.temp || 0;
-
-if(weather.includes("rain")){
-
-createWeatherTask(
-"Take an umbrella ☔",
-"Rain is predicted today."
-);
-
-}
-
-if(weather.includes("snow")){
-
-createWeatherTask(
-"Wear warm clothes ❄️",
-"Snow is predicted today."
-);
-
-}
-
-if(temp >= 90){
-
-createWeatherTask(
-"Drink extra water 🥤",
-"Hot weather expected today."
-);
-
-}
-
-if(temp <= 45){
-
-createWeatherTask(
-"Bring a jacket 🧥",
-"Cold weather expected today."
-);
-
-}
-
-renderTasks();
-renderCalendar();
-
-alert(
-"Weather smart tasks updated."
-);
-
-}catch(error){
-
-console.error(error);
-
-alert(
-"Could not load weather."
-);
-
-}
-
-},
-
-() => {
-
-alert(
-"Location access denied."
-);
-
-}
-
-);
-
-}
-
-function createWeatherTask(
-title,
-description
-){
-
-const exists =
-tasks.some(
-t =>
-t.text === title &&
-!t.done
-);
-
-if(exists) return;
-
-tasks.push({
-
-id:
-Date.now() + Math.random(),
-
-text:title,
-
-description,
-
-priority:"medium",
-
-dueDate:
-new Date()
-.toISOString()
-.slice(0,16),
-
-recurring:"none",
-
-done:false
-
-});
-
-}
-
-/* =========================
-   TASKS
-========================= */
 
 function addTask(){
 
@@ -220,9 +53,7 @@ $("taskInput").value.trim();
 
 if(!text){
 
-alert(
-"Please enter a task."
-);
+alert("Please enter a task.");
 
 return;
 
@@ -254,7 +85,6 @@ done:false
 $("taskInput").value = "";
 $("descriptionInput").value = "";
 $("dueDate").value = "";
-$("recurring").value = "none";
 
 renderTasks();
 renderCalendar();
@@ -382,24 +212,12 @@ document.createElement("div");
 popup.className = "popup";
 
 popup.innerHTML = `
-
 <h3>Task Completed 🎉</h3>
-
 <br>
-
-<p>
-${quotes[
-Math.floor(
-Math.random() * quotes.length
-)
-]}
-</p>
-
+<p>${quotes[Math.floor(Math.random()*quotes.length)]}</p>
 `;
 
-document.body.appendChild(
-popup
-);
+document.body.appendChild(popup);
 
 setTimeout(
 () => popup.remove(),
@@ -408,13 +226,13 @@ setTimeout(
 
 }
 
-/* =========================
-   CALENDAR
-========================= */
+/* CALENDAR */
 
-let currentDate = new Date();
+let currentDate =
+new Date();
 
-let viewMode = "month";
+let viewMode =
+"month";
 
 const months = [
 "January","February","March",
@@ -479,192 +297,50 @@ function renderCalendar(){
 const calendar =
 $("calendar");
 
-const monthTitle =
-$("monthTitle");
-
-calendar.style.gridTemplateColumns =
-"repeat(7,1fr)";
-
 calendar.innerHTML = "";
-
-if(viewMode === "day"){
-
-renderDayView(
-calendar,
-monthTitle
-);
-
-}
-
-if(viewMode === "week"){
-
-renderWeekView(
-calendar,
-monthTitle
-);
-
-}
 
 if(viewMode === "month"){
 
-renderMonthView(
-calendar,
-monthTitle
-);
+renderMonthView();
 
 }
 
 if(viewMode === "year"){
 
-renderYearView(
-calendar,
-monthTitle
-);
+renderYearView();
+
+}
+
+if(viewMode === "week"){
+
+renderWeekView();
+
+}
+
+if(viewMode === "day"){
+
+renderDayView();
 
 }
 
 }
 
-function renderDayView(
-calendar,
-monthTitle
-){
+function renderMonthView(){
 
-const date = currentDate;
+const calendar =
+$("calendar");
 
-const dateString =
-`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+calendar.style.gridTemplateColumns =
+"repeat(7,1fr)";
 
-monthTitle.textContent =
-`${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-
-const todaysTasks =
-tasks.filter(
-t =>
-t.dueDate &&
-t.dueDate.startsWith(dateString)
-);
-
-calendar.innerHTML = `
-<div class="day" style="grid-column:span 7;min-height:300px;">
-
-<div class="day-number">
-Tasks for ${dateString}
-</div>
-
-${todaysTasks.length ?
-
-todaysTasks.map(t=>`
-<div class="calendar-task">
-${t.text}
-</div>
-`).join("")
-
-:
-
-"<p>No tasks today.</p>"
-
-}
-
-</div>
-`;
-
-}
-
-function renderWeekView(
-calendar,
-monthTitle
-){
-
-const tempDate =
-new Date(currentDate);
-
-const day =
-tempDate.getDay();
-
-const start =
-new Date(tempDate);
-
-start.setDate(
-tempDate.getDate() - day
-);
-
-const weekNumber =
-Math.ceil(start.getDate()/7);
-
-const labels = [
-"First",
-"Second",
-"Third",
-"Fourth",
-"Fifth"
-];
-
-monthTitle.textContent =
-`${labels[weekNumber-1]} Week of ${months[start.getMonth()]} ${start.getFullYear()}`;
-
-calendar.innerHTML =
-days.map(d => `
-<div class="day-name">
-${d}
-</div>
-`).join("");
-
-for(let i=0;i<7;i++){
-
-const current =
-new Date(start);
-
-current.setDate(
-start.getDate()+i
-);
-
-const dateString =
-`${current.getFullYear()}-${String(current.getMonth()+1).padStart(2,"0")}-${String(current.getDate()).padStart(2,"0")}`;
-
-const taskHTML =
-tasks
-.filter(
-t =>
-t.dueDate &&
-t.dueDate.startsWith(dateString)
-)
-.map(t => `
-<div class="calendar-task">
-${t.text}
-</div>
-`)
-.join("");
-
-calendar.innerHTML += `
-<div class="day">
-
-<div class="day-number">
-${current.getDate()}
-</div>
-
-${taskHTML}
-
-</div>
-`;
-
-}
-
-}
-
-function renderMonthView(
-calendar,
-monthTitle
-){
-
-const currentMonth =
+const month =
 currentDate.getMonth();
 
-const currentYear =
+const year =
 currentDate.getFullYear();
 
-monthTitle.textContent =
-`${months[currentMonth]} ${currentYear}`;
+$("monthTitle").textContent =
+`${months[month]} ${year}`;
 
 calendar.innerHTML =
 days.map(d =>
@@ -672,38 +348,22 @@ days.map(d =>
 ).join("");
 
 const firstDay =
-new Date(
-currentYear,
-currentMonth,
-1
-).getDay();
+new Date(year,month,1).getDay();
 
 const daysInMonth =
-new Date(
-currentYear,
-currentMonth + 1,
-0
-).getDate();
+new Date(year,month+1,0).getDate();
 
-for(
-let i = 0;
-i < firstDay;
-i++
-){
+for(let i=0;i<firstDay;i++){
 
 calendar.innerHTML +=
 "<div></div>";
 
 }
 
-for(
-let day = 1;
-day <= daysInMonth;
-day++
-){
+for(let day=1;day<=daysInMonth;day++){
 
 const date =
-`${currentYear}-${String(currentMonth+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+`${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
 
 const taskHTML =
 tasks
@@ -740,42 +400,42 @@ ${taskHTML}
 
 }
 
-function renderYearView(
-calendar,
-monthTitle
-){
+function renderYearView(){
 
-const year =
-currentDate.getFullYear();
-
-monthTitle.textContent =
-`${year}`;
+const calendar =
+$("calendar");
 
 calendar.style.gridTemplateColumns =
 "repeat(3,1fr)";
 
+const year =
+currentDate.getFullYear();
+
+$("monthTitle").textContent =
+`${year}`;
+
 for(let m=0;m<12;m++){
 
 const totalTasks =
-tasks.filter(t => {
+tasks.filter(t=>{
 
 if(!t.dueDate)
 return false;
 
-const taskDate =
+const d =
 new Date(t.dueDate);
 
 return (
-taskDate.getMonth() === m &&
-taskDate.getFullYear() === year
+d.getMonth()===m &&
+d.getFullYear()===year
 );
 
 }).length;
 
 calendar.innerHTML += `
 
-<div class="day"
-style="min-height:150px;">
+<div class="day year-month"
+onclick="openMonth(${m})">
 
 <div class="day-number">
 ${months[m]}
@@ -797,6 +457,151 @@ task(s)
 
 }
 
+function openMonth(month){
+
+currentDate.setMonth(month);
+
+viewMode = "month";
+
+renderCalendar();
+
+}
+
+function renderWeekView(){
+
+const calendar =
+$("calendar");
+
+calendar.style.gridTemplateColumns =
+"repeat(7,1fr)";
+
+const temp =
+new Date(currentDate);
+
+const start =
+new Date(temp);
+
+start.setDate(
+temp.getDate() - temp.getDay()
+);
+
+const week =
+Math.ceil(start.getDate()/7);
+
+const labels = [
+"First",
+"Second",
+"Third",
+"Fourth",
+"Fifth"
+];
+
+$("monthTitle").textContent =
+`${labels[week-1]} Week of ${months[start.getMonth()]}`;
+
+calendar.innerHTML =
+days.map(d =>
+`<div class="day-name">${d}</div>`
+).join("");
+
+for(let i=0;i<7;i++){
+
+const current =
+new Date(start);
+
+current.setDate(
+start.getDate()+i
+);
+
+const date =
+`${current.getFullYear()}-${String(current.getMonth()+1).padStart(2,"0")}-${String(current.getDate()).padStart(2,"0")}`;
+
+const taskHTML =
+tasks
+.filter(
+t =>
+t.dueDate &&
+t.dueDate.startsWith(date)
+)
+.map(
+t => `
+<div class="calendar-task">
+${t.text}
+</div>
+`
+)
+.join("");
+
+calendar.innerHTML += `
+
+<div class="day"
+onclick="selectDate('${date}')">
+
+<div class="day-number">
+${current.getDate()}
+</div>
+
+${taskHTML}
+
+</div>
+
+`;
+
+}
+
+}
+
+function renderDayView(){
+
+const calendar =
+$("calendar");
+
+calendar.style.gridTemplateColumns =
+"1fr";
+
+const d =
+currentDate;
+
+const date =
+`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+
+$("monthTitle").textContent =
+`${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+
+const taskHTML =
+tasks
+.filter(
+t =>
+t.dueDate &&
+t.dueDate.startsWith(date)
+)
+.map(
+t => `
+<div class="calendar-task">
+${t.text}
+</div>
+`
+)
+.join("");
+
+calendar.innerHTML = `
+
+<div class="day"
+style="min-height:400px;"
+onclick="selectDate('${date}')">
+
+<div class="day-number">
+${date}
+</div>
+
+${taskHTML || "No tasks"}
+
+</div>
+
+`;
+
+}
+
 function selectDate(date){
 
 const currentTime =
@@ -813,10 +618,6 @@ behavior:"smooth"
 });
 
 }
-
-/* =========================
-   PAGE LOAD
-========================= */
 
 window.onload = () => {
 

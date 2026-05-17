@@ -1,332 +1,537 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Smart Todo App</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Todo App</title>
 
-<style>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
 
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
-font-family:Arial,sans-serif
-}
+    .wrap {
+      max-width: 1000px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
 
-body{
-background:#f3f4f8;
-padding:20px;
-color:#222
-}
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
 
-.wrap{
-max-width:1000px;
-margin:auto
-}
+    .add-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
 
-h1{
-text-align:center;
-margin-bottom:20px
-}
+    input,
+    textarea,
+    select,
+    button {
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
 
-.add-row,
-.calendar-box,
-.task{
-background:#fff;
-border-radius:16px;
-box-shadow:0 4px 12px rgba(0,0,0,.08)
-}
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
 
-.add-row{
-padding:20px;
-display:grid;
-gap:12px;
-margin-bottom:25px
-}
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.2s;
+    }
 
-input,
-textarea,
-select,
-button{
-width:100%;
-padding:12px;
-border-radius:10px;
-border:1px solid #ccc;
-font-size:15px
-}
+    button:hover {
+      background: #0056b3;
+    }
 
-textarea{
-resize:vertical;
-min-height:80px
-}
+    .weather-buttons {
+      display: flex;
+      gap: 10px;
+    }
 
-button{
-cursor:pointer;
-border:none;
-background:#4f46e5;
-color:#fff;
-font-weight:bold;
-transition:.2s
-}
+    #taskList {
+      margin-top: 25px;
+    }
 
-button:hover{
-opacity:.9
-}
+    .task {
+      background: #f1f1f1;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
 
-#taskList{
-display:grid;
-gap:15px;
-margin-bottom:35px
-}
+    .calendar-box {
+      margin-top: 35px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      background: #fafafa;
+    }
 
-.task{
-padding:18px;
-display:flex;
-justify-content:space-between;
-gap:20px;
-flex-wrap:wrap
-}
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
-.task-left{
-flex:1;
-min-width:240px
-}
+    #monthTitle {
+      font-size: 22px;
+      font-weight: bold;
+    }
 
-.task h3{
-margin-bottom:8px;
-word-break:break-word
-}
+    .calendar-grid {
+      display: grid;
+      gap: 5px;
+    }
 
-.description{
-margin-bottom:10px;
-color:#555;
-white-space:pre-wrap;
-word-break:break-word
-}
+    .month-view {
+      grid-template-columns: repeat(7, 1fr);
+    }
 
-.task-buttons{
-display:flex;
-gap:10px;
-flex-wrap:wrap
-}
+    .week-view {
+      grid-template-columns: repeat(7, 1fr);
+    }
 
-.done{
-opacity:.55;
-text-decoration:line-through
-}
+    .day-view {
+      grid-template-columns: 1fr;
+    }
 
-.badge{
-display:inline-block;
-padding:6px 12px;
-border-radius:999px;
-font-size:12px;
-font-weight:bold;
-margin-top:8px
-}
+    .year-view {
+      grid-template-columns: repeat(4, 1fr);
+    }
 
-.urgent{background:#ffd2d2}
-.high{background:#ffe5bd}
-.medium{background:#dbeaff}
-.low{background:#daf7d4}
+    .day-name {
+      background: #ddd;
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
+      border-radius: 5px;
+    }
 
-.warning{
-color:red;
-font-weight:bold;
-margin-top:8px
-}
+    .day {
+      background: #e9e9e9;
+      min-height: 80px;
+      padding: 10px;
+      text-align: center;
+      border-radius: 5px;
+      overflow: hidden;
+    }
 
-.calendar-box{
-padding:20px
-}
+    .empty {
+      background: transparent;
+    }
 
-.calendar-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px
-}
+    .calendar-task {
+      background: #007bff;
+      color: white;
+      padding: 4px;
+      border-radius: 4px;
+      margin-top: 5px;
+      font-size: 12px;
+    }
 
-.calendar-header button{
-width:auto;
-padding:10px 16px
-}
+    .view-select {
+      max-width: 200px;
+    }
 
-#monthTitle{
-font-size:22px;
-font-weight:bold
-}
+    @media(max-width:700px) {
 
-.calendar-grid{
-display:grid;
-grid-template-columns:repeat(7,1fr);
-gap:8px
-}
+      .year-view {
+        grid-template-columns: repeat(2,1fr);
+      }
 
-.day-name{
-text-align:center;
-font-weight:bold;
-padding:10px 0
-}
-
-.day{
-background:#f5f5f5;
-border-radius:12px;
-min-height:90px;
-padding:8px;
-cursor:pointer;
-transition:.2s;
-overflow:hidden
-}
-
-.day:hover{
-background:#e6e6ff
-}
-
-.day-number{
-font-weight:bold;
-margin-bottom:5px
-}
-
-.calendar-task{
-background:#4f46e5;
-color:#fff;
-border-radius:6px;
-padding:2px 6px;
-margin-top:4px;
-font-size:11px;
-overflow:hidden;
-text-overflow:ellipsis;
-white-space:nowrap
-}
-
-.popup{
-position:fixed;
-top:20px;
-right:20px;
-background:#fff;
-padding:20px;
-border-radius:16px;
-box-shadow:0 8px 24px rgba(0,0,0,.2);
-max-width:300px;
-z-index:999;
-animation:slide .3s ease
-}
-
-.weather-buttons{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px
-}
-
-@keyframes slide{
-from{
-transform:translateX(80px);
-opacity:0
-}
-to{
-transform:translateX(0);
-opacity:1
-}
-}
-
-@media(max-width:700px){
-
-.task{
-flex-direction:column
-}
-
-.day{
-min-height:70px;
-font-size:12px
-}
-
-.calendar-grid{
-gap:5px
-}
-
-.weather-buttons{
-grid-template-columns:1fr
-}
-
-}
-
-</style>
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="wrap">
+  <div class="wrap">
 
-<h1>Smart Todo App</h1>
+    <h1>Smart Todo App</h1>
 
-<div class="add-row">
+    <div class="add-row">
 
-<input id="taskInput" type="text" placeholder="Task name">
+      <input
+        id="taskInput"
+        type="text"
+        placeholder="Task name"
+      >
 
-<textarea id="descriptionInput" placeholder="Task description"></textarea>
+      <textarea
+        id="descriptionInput"
+        placeholder="Task description"
+      ></textarea>
 
-<select id="priority">
-<option value="urgent">Urgent</option>
-<option value="high">High</option>
-<option value="medium">Medium</option>
-<option value="low">Low</option>
-</select>
+      <select id="priority">
+        <option value="urgent">Urgent</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
 
-<input id="dueDate" type="datetime-local" step="60">
+      <input
+        id="dueDate"
+        type="datetime-local"
+      >
 
-<select id="recurring">
-<option value="none">No Recurring</option>
-<option value="daily">Daily</option>
-<option value="weekly">Weekly</option>
-<option value="biweekly">Every Other Week</option>
-<option value="monthly">Monthly</option>
-<option value="lastThursday">Last Thursday of the Month</option>
-</select>
+      <select id="recurring">
+        <option value="none">No Recurring</option>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="biweekly">Every Other Week</option>
+        <option value="monthly">Monthly</option>
+        <option value="lastThursday">Last Thursday of Month</option>
+      </select>
 
-<div class="weather-buttons">
+      <div class="weather-buttons">
 
-<button onclick="enableNotifications()">
-Enable Notifications
-</button>
+        <button onclick="enableNotifications()">
+          Enable Notifications
+        </button>
 
-<button onclick="getWeatherTasks()">
-Enable Weather Smart Tasks
-</button>
+        <button onclick="getWeatherTasks()">
+          Enable Weather Smart Tasks
+        </button>
 
-</div>
+      </div>
 
-<button onclick="addTask()">
-Add Task
-</button>
+      <button onclick="addTask()">
+        Add Task
+      </button>
 
-</div>
+    </div>
 
-<div id="taskList"></div>
+    <div id="taskList"></div>
 
-<div class="calendar-box">
+    <div class="calendar-box">
 
-<div class="calendar-header">
+      <div class="calendar-header">
 
-<button onclick="changeMonth(-1)">
-◀
-</button>
+        <button onclick="changeMonth(-1)">
+          ◀
+        </button>
 
-<div id="monthTitle"></div>
+        <div id="monthTitle"></div>
 
-<button onclick="changeMonth(1)">
-▶
-</button>
+        <button onclick="changeMonth(1)">
+          ▶
+        </button>
 
-</div>
+        <select
+          id="calendarView"
+          class="view-select"
+          onchange="renderCalendar()"
+        >
+          <option value="month">Month View</option>
+          <option value="week">Week View</option>
+          <option value="day">Day View</option>
+          <option value="year">Year View</option>
+        </select>
 
-<div class="calendar-grid" id="calendar"></div>
+      </div>
 
-</div>
+      <div
+        class="calendar-grid"
+        id="calendar">
+      </div>
 
-</div>
+    </div>
 
-<script src="script.js"></script>
+  </div>
+
+  <script>
+
+    let currentDate = new Date();
+
+    let tasks = [];
+
+    function renderCalendar() {
+
+      const calendar =
+        document.getElementById("calendar");
+
+      const monthTitle =
+        document.getElementById("monthTitle");
+
+      const view =
+        document.getElementById("calendarView").value;
+
+      calendar.innerHTML = "";
+
+      calendar.className = "calendar-grid";
+
+      const year =
+        currentDate.getFullYear();
+
+      const month =
+        currentDate.getMonth();
+
+      const monthNames = [
+        "January","February","March",
+        "April","May","June",
+        "July","August","September",
+        "October","November","December"
+      ];
+
+      const dayNames = [
+        "Sun","Mon","Tue",
+        "Wed","Thu","Fri","Sat"
+      ];
+
+      if (view === "month") {
+
+        calendar.classList.add("month-view");
+
+        monthTitle.textContent =
+          `${monthNames[month]} ${year}`;
+
+        for (let name of dayNames) {
+
+          const dayName =
+            document.createElement("div");
+
+          dayName.className = "day-name";
+
+          dayName.textContent = name;
+
+          calendar.appendChild(dayName);
+        }
+
+        const firstDay =
+          new Date(year, month, 1).getDay();
+
+        const daysInMonth =
+          new Date(year, month + 1, 0).getDate();
+
+        for (let i = 0; i < firstDay; i++) {
+
+          const empty =
+            document.createElement("div");
+
+          empty.className = "empty";
+
+          calendar.appendChild(empty);
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+
+          const dayBox =
+            document.createElement("div");
+
+          dayBox.className = "day";
+
+          const dateString =
+            `${year}-${String(month + 1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+
+          const matchingTasks =
+            tasks.filter(
+              t => t.dueDate.startsWith(dateString)
+            );
+
+          dayBox.innerHTML = `
+            <strong>${day}</strong>
+          `;
+
+          matchingTasks.forEach(task => {
+
+            dayBox.innerHTML += `
+              <div class="calendar-task">
+                ${task.name}
+              </div>
+            `;
+
+          });
+
+          calendar.appendChild(dayBox);
+        }
+
+      }
+
+      else if (view === "week") {
+
+        calendar.classList.add("week-view");
+
+        monthTitle.textContent =
+          `Week View`;
+
+        for (let i = 0; i < 7; i++) {
+
+          const date =
+            new Date(currentDate);
+
+          date.setDate(
+            currentDate.getDate() - currentDate.getDay() + i
+          );
+
+          const box =
+            document.createElement("div");
+
+          box.className = "day";
+
+          box.innerHTML = `
+            <strong>
+              ${dayNames[i]}
+            </strong>
+            <br><br>
+            ${date.toDateString()}
+          `;
+
+          calendar.appendChild(box);
+        }
+
+      }
+
+      else if (view === "day") {
+
+        calendar.classList.add("day-view");
+
+        monthTitle.textContent =
+          `Day View`;
+
+        const box =
+          document.createElement("div");
+
+        box.className = "day";
+
+        box.style.minHeight = "300px";
+
+        box.innerHTML = `
+          <h2>
+            ${currentDate.toDateString()}
+          </h2>
+        `;
+
+        calendar.appendChild(box);
+
+      }
+
+      else if (view === "year") {
+
+        calendar.classList.add("year-view");
+
+        monthTitle.textContent =
+          `${year}`;
+
+        monthNames.forEach(name => {
+
+          const box =
+            document.createElement("div");
+
+          box.className = "day";
+
+          box.innerHTML = `
+            <strong>${name}</strong>
+          `;
+
+          calendar.appendChild(box);
+
+        });
+
+      }
+
+    }
+
+    function changeMonth(direction) {
+
+      currentDate.setMonth(
+        currentDate.getMonth() + direction
+      );
+
+      renderCalendar();
+
+    }
+
+    function addTask() {
+
+      const taskInput =
+        document.getElementById("taskInput");
+
+      const descriptionInput =
+        document.getElementById("descriptionInput");
+
+      const priority =
+        document.getElementById("priority");
+
+      const dueDate =
+        document.getElementById("dueDate");
+
+      const recurring =
+        document.getElementById("recurring");
+
+      const taskList =
+        document.getElementById("taskList");
+
+      if (taskInput.value.trim() === "") {
+
+        alert("Please enter a task.");
+
+        return;
+      }
+
+      tasks.push({
+        name: taskInput.value,
+        dueDate: dueDate.value
+      });
+
+      const task =
+        document.createElement("div");
+
+      task.className = "task";
+
+      task.innerHTML = `
+        <h3>${taskInput.value}</h3>
+        <p>${descriptionInput.value}</p>
+        <p><strong>Priority:</strong> ${priority.value}</p>
+        <p><strong>Due:</strong> ${dueDate.value || "None"}</p>
+        <p><strong>Recurring:</strong> ${recurring.value}</p>
+      `;
+
+      taskList.appendChild(task);
+
+      taskInput.value = "";
+      descriptionInput.value = "";
+      dueDate.value = "";
+
+      renderCalendar();
+
+    }
+
+    function enableNotifications() {
+
+      alert("Notifications enabled!");
+
+    }
+
+    function getWeatherTasks() {
+
+      alert("Weather smart tasks enabled!");
+
+    }
+
+    renderCalendar();
+
+  </script>
 
 </body>
 </html>

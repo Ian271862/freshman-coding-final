@@ -318,63 +318,66 @@ function renderTasks() {
 
   if (!taskList) return;
 
-  taskList.innerHTML =
+  taskList.innerHTML = tasks.map(task => {
 
-    tasks.map(task => `
-
+    return `
 <div class="task ${task.done ? "done" : ""}">
 
-<div class="task-left">
+  <div class="task-left">
 
-<h3>${task.text}</h3>
+    <h3>${task.text}</h3>
 
-<div class="description">
-${task.description || ""}
+    <div class="description">
+      ${task.description || ""}
+    </div>
+
+    <span class="badge ${task.priority}">
+      ${task.priority.toUpperCase()}
+    </span>
+
+    <br><br>
+
+    ${
+      task.dueDate
+      ? `<strong>Due:</strong>
+         ${new Date(task.dueDate).toLocaleString()}`
+      : ""
+    }
+
+    <br><br>
+
+    ${getCountdown(task.dueDate)}
+
+    ${
+      task.recurring !== "none"
+      ? `<div class="repeat-label">
+           🔁 ${task.recurring}
+         </div>`
+      : ""
+    }
+
+  </div>
+
+  <div class="task-buttons">
+
+    <button onclick="toggleTask(${task.id})">
+      ${task.done ? "Undo" : "Done"}
+    </button>
+
+    <button onclick="editTask(${task.id})">
+      Edit
+    </button>
+
+    <button onclick="deleteTask(${task.id})">
+      Delete
+    </button>
+
+  </div>
+
 </div>
+`;
 
-<span class="badge ${task.priority}">
-${task.priority.toUpperCase()}
-</span>
-
-<br><br>
-
-${task.dueDate ?
-`<strong>Due:</strong>
-${new Date(task.dueDate)
-.toLocaleString()}`
-: ""}
-
-<br><br>
-
-${getCountdown(task.dueDate)}
-
-${task.recurring !== "none" ?
-`<div class="repeat-label">
-🔁 ${task.recurring}
-</div>`
-: ""}
-
-</div>
-
-<div class="task-buttons">
-
-<button onclick="toggleTask(${task.id})">
-${task.done ? "Undo" : "Done"}
-</button>
-
-<button onclick="editTask(${task.id})">
-Edit
-</button>
-
-<button onclick="deleteTask(${task.id})">
-Delete
-</button>
-
-</div>
-
-</div>
-
-`).join("");
+  }).join("");
 
 }
 

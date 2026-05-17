@@ -1,5 +1,5 @@
 let currentDate = new Date();
-let tasks = [];
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 const monthNames = [
 "January","February","March","April","May","June",
@@ -8,31 +8,31 @@ const monthNames = [
 
 const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
+
+// ---------------------- SAVE SYSTEM ----------------------
+function saveTasks(){
+localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+
+// ---------------------- NOTIFICATIONS ----------------------
 function enableNotifications(){
 
 if(!("Notification" in window)){
-alert("Notifications are not supported.");
+alert("Notifications not supported");
 return;
 }
 
-Notification.requestPermission().then(permission=>{
-
-if(permission==="granted"){
-new Notification("Notifications Enabled 🔔",{
-body:"Smart reminders are active."
-});
-}else{
-alert("Notifications denied.");
+Notification.requestPermission().then(p=>{
+if(p==="granted"){
+new Notification("Smart Todo Enabled 🔔",{body:"You will get reminders"});
 }
-
 });
 
 }
 
-function getWeatherTasks(){
-alert("Weather smart tasks enabled.");
-}
 
+// ---------------------- ADD TASK ----------------------
 function addTask(){
 
 const taskInput = document.getElementById("taskInput");
@@ -42,7 +42,7 @@ const dueDate = document.getElementById("dueDate");
 const recurring = document.getElementById("recurring");
 
 if(taskInput.value.trim()===""){
-alert("Please enter a task.");
+alert("Enter a task");
 return;
 }
 
@@ -61,37 +61,45 @@ descriptionInput.value="";
 dueDate.value="";
 recurring.value="none";
 
+saveTasks();
 renderTasks();
 renderCalendar();
+scheduleNotifications();
 }
 
+
+// ---------------------- DELETE / TOGGLE / EDIT ----------------------
 function deleteTask(id){
 tasks = tasks.filter(t=>t.id!==id);
+saveTasks();
 renderTasks();
 renderCalendar();
 }
 
 function toggleTask(id){
-const task = tasks.find(t=>t.id===id);
-if(!task)return;
-task.done=!task.done;
+const t = tasks.find(x=>x.id===id);
+if(!t) return;
+t.done = !t.done;
+saveTasks();
 renderTasks();
 renderCalendar();
 }
 
 function editTask(id){
-const task = tasks.find(t=>t.id===id);
-if(!task)return;
+const t = tasks.find(x=>x.id===id);
+if(!t) return;
 
-const newText = prompt("Edit task",task.name);
-if(newText===null || newText.trim()==="") return;
+const newText = prompt("Edit task", t.name);
+if(!newText || newText.trim()==="") return;
 
-task.name=newText;
-
+t.name = newText;
+saveTasks();
 renderTasks();
 renderCalendar();
 }
 
+
+// ---------------------- RENDER TASKS ----------------------
 function renderTasks(){
 
 const taskList = document.getElementById("taskList");
@@ -101,10 +109,9 @@ tasks.forEach(task=>{
 
 taskList.innerHTML += `
 <div class="task">
-
 <div class="task-left">
 
-<h3 style="text-decoration:${task.done ? "line-through":"none"}">
+<h3 style="text-decoration:${task.done?"line-through":"none"}">
 ${task.name}
 </h3>
 
@@ -126,50 +133,21 @@ ${new Date(task.dueDate).toLocaleString()}
 <div class="task-buttons">
 
 <button onclick="toggleTask(${task.id})">
-${task.done ? "Undo":"Done"}
+${task.done?"Undo":"Done"}
 </button>
 
 <button onclick="editTask(${task.id})">Edit</button>
-
 <button onclick="deleteTask(${task.id})">Delete</button>
 
 </div>
-
 </div>
 `;
 });
 
 }
 
-function selectDate(date){
 
-const currentTime =
-document.getElementById("dueDate").value.split("T")[1] || "12:00";
-
-document.getElementById("dueDate").value =
-`${date}T${currentTime}`;
-
-window.scrollTo({top:0,behavior:"smooth"});
-}
-
-function changeViewDate(direction){
-
-const view = document.getElementById("calendarView").value;
-
-if(view==="month") currentDate.setMonth(currentDate.getMonth()+direction);
-else if(view==="week") currentDate.setDate(currentDate.getDate()+direction*7);
-else if(view==="day") currentDate.setDate(currentDate.getDate()+direction);
-else if(view==="year") currentDate.setFullYear(currentDate.getFullYear()+direction);
-
-renderCalendar();
-}
-
-function openMonth(index){
-currentDate.setMonth(index);
-document.getElementById("calendarView").value="month";
-renderCalendar();
-}
-
+// ---------------------- CALENDAR ----------------------
 function renderCalendar(){
 
 const calendar = document.getElementById("calendar");
@@ -200,11 +178,10 @@ calendar.innerHTML += `<div class="empty"></div>`;
 
 for(let day=1;day<=daysInMonth;day++){
 
-const date =
-`${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+const date = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
 
 const taskHTML = tasks
-.filter(t=>t.dueDate && t.dueDate.split("T")[0] === date)
+.filter(t=>t.dueDate?.split("T")[0]===date)
 .map(t=>`<div class="calendar-task">${t.name}</div>`)
 .join("");
 
@@ -218,77 +195,62 @@ ${taskHTML}
 
 }
 
-else if(view==="week"){
-
-calendar.classList.add("week-view");
-
-const weekNames = ["First","Second","Third","Fourth","Fifth"];
-
-for(let i=0;i<7;i++){
-
-const start = new Date(currentDate);
-start.setDate(currentDate.getDate()-currentDate.getDay()+i);
-
-const dateString = start.toISOString().split("T")[0];
-
-const taskHTML = tasks
-.filter(t=>t.dueDate && t.dueDate.split("T")[0] === dateString)
-.map(t=>`<div class="calendar-task">${t.name}</div>`)
-.join("");
-
-calendar.innerHTML += `
-<div class="day" onclick="selectDate('${dateString}')">
-<div class="day-number">
-${dayNames[i]}<br>
-${start.getMonth()+1}/${start.getDate()}
-</div>
-${taskHTML}
-</div>
-`;
 }
 
-monthTitle.textContent =
-`${monthNames[month]} ${year}
-Week view`;
+
+// ---------------------- DATE PICK ----------------------
+function selectDate(date){
+document.getElementById("dueDate").value = date + "T12:00";
+window.scrollTo({top:0,behavior:"smooth"});
 }
 
-else if(view==="day"){
 
-calendar.classList.add("day-view");
-
-const dateString = currentDate.toISOString().split("T")[0];
-
-monthTitle.textContent = currentDate.toDateString();
-
-const taskHTML = tasks
-.filter(t=>t.dueDate && t.dueDate.split("T")[0] === dateString)
-.map(t=>`<div class="calendar-task">${t.name}</div>`)
-.join("");
-
-calendar.innerHTML += `
-<div class="day" style="min-height:300px" onclick="selectDate('${dateString}')">
-<h2>${currentDate.toDateString()}</h2>
-<br>
-${taskHTML || "No tasks yet"}
-</div>
-`;
+// ---------------------- NAV ----------------------
+function changeViewDate(dir){
+currentDate.setDate(currentDate.getDate()+dir*7);
+renderCalendar();
 }
 
-else if(view==="year"){
 
-calendar.classList.add("year-view");
+// ---------------------- NOTIFICATION ENGINE ----------------------
+function scheduleNotifications(){
 
-monthTitle.textContent = year;
+setInterval(()=>{
 
-monthNames.forEach((m,i)=>{
-calendar.innerHTML += `
-<div class="month-box" onclick="openMonth(${i})">${m}</div>
-`;
+const now = new Date().toISOString().slice(0,16);
+
+tasks.forEach(t=>{
+if(!t.done && t.dueDate?.slice(0,16) === now){
+new Notification("Task Due: " + t.name);
+}
 });
 
-}
+},60000);
 
 }
 
+
+// ---------------------- RECURRENCE ENGINE ----------------------
+function handleRecurringTasks(){
+
+const today = new Date().toISOString().split("T")[0];
+
+tasks.forEach(t=>{
+if(t.recurring==="daily"){
+tasks.push({...t,id:Date.now()+Math.random(),dueDate:today+"T09:00",done:false});
+}
+});
+
+saveTasks();
+}
+
+
+// ---------------------- INIT ----------------------
+function init(){
 renderTasks();
 renderCalendar();
+scheduleNotifications();
+handleRecurringTasks();
+}
+
+init();

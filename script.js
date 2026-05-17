@@ -15,7 +15,26 @@ const quotes = [
   "Excellent work!"
 ];
 
-const $ = id => document.getElementById(id);
+/* =========================
+   SAFE ELEMENT SELECTOR
+========================= */
+
+const $ = id => {
+
+  const el =
+    document.getElementById(id);
+
+  if (!el) {
+
+    console.error(
+      `Missing element: ${id}`
+    );
+
+  }
+
+  return el;
+
+};
 
 /* =========================
    NOTIFICATIONS
@@ -24,8 +43,13 @@ const $ = id => document.getElementById(id);
 async function enableNotifications() {
 
   if (!("Notification" in window)) {
-    alert("Notifications are not supported on this device.");
+
+    alert(
+      "Notifications are not supported on this device."
+    );
+
     return;
+
   }
 
   if (Notification.permission === "granted") {
@@ -38,6 +62,7 @@ async function enableNotifications() {
     );
 
     return;
+
   }
 
   if (Notification.permission === "denied") {
@@ -47,6 +72,7 @@ async function enableNotifications() {
     );
 
     return;
+
   }
 
   const permission =
@@ -79,7 +105,10 @@ async function getWeatherTasks() {
 
   if (!navigator.geolocation) {
 
-    alert("Geolocation is not supported.");
+    alert(
+      "Geolocation is not supported."
+    );
+
     return;
 
   }
@@ -88,8 +117,11 @@ async function getWeatherTasks() {
 
     async position => {
 
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
+      const lat =
+        position.coords.latitude;
+
+      const lon =
+        position.coords.longitude;
 
       try {
 
@@ -97,7 +129,8 @@ async function getWeatherTasks() {
           `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=imperial`
         );
 
-        const data = await response.json();
+        const data =
+          await response.json();
 
         if (data.cod !== "200") {
 
@@ -109,13 +142,25 @@ async function getWeatherTasks() {
 
         }
 
-        const forecast = data.list[0];
+        const forecast =
+          data.list?.[0];
+
+        if (!forecast) {
+
+          alert(
+            "Weather forecast unavailable."
+          );
+
+          return;
+
+        }
 
         const weather =
-          forecast.weather[0].main.toLowerCase();
+          forecast.weather?.[0]?.main
+          ?.toLowerCase() || "";
 
         const temp =
-          forecast.main.temp;
+          forecast.main?.temp || 0;
 
         if (weather.includes("rain")) {
 
@@ -214,11 +259,17 @@ async function getWeatherTasks() {
 
 }
 
-function createWeatherTask(title, description) {
+function createWeatherTask(
+  title,
+  description
+) {
 
-  const alreadyExists = tasks.some(
-    t => t.text === title && !t.done
-  );
+  const alreadyExists =
+    tasks.some(
+      t =>
+      t.text === title &&
+      !t.done
+    );
 
   if (alreadyExists) return;
 
@@ -227,14 +278,20 @@ function createWeatherTask(title, description) {
     text: title,
     description,
     priority: "medium",
-    dueDate: new Date().toISOString().slice(0, 16),
+    dueDate:
+      new Date()
+      .toISOString()
+      .slice(0, 16),
     recurring: "none",
     done: false
   });
 
 }
 
-function sendNotification(title, body) {
+function sendNotification(
+  title,
+  body
+) {
 
   if (
     "Notification" in window &&
@@ -255,24 +312,54 @@ function sendNotification(title, body) {
 
 function addTask() {
 
-  const text = $("taskInput").value.trim();
+  const taskInput =
+    $("taskInput");
 
-  if (!text) return;
+  if (!taskInput) return;
+
+  const text =
+    taskInput.value.trim();
+
+  if (!text) {
+
+    alert(
+      "Please enter a task."
+    );
+
+    return;
+
+  }
 
   tasks.push({
     id: Date.now() + Math.random(),
+
     text,
-    description: $("descriptionInput").value.trim(),
-    priority: $("priority").value,
-    dueDate: $("dueDate").value,
-    recurring: $("recurring").value,
+
+    description:
+      $("descriptionInput")?.value.trim() || "",
+
+    priority:
+      $("priority")?.value || "medium",
+
+    dueDate:
+      $("dueDate")?.value || "",
+
+    recurring:
+      $("recurring")?.value || "none",
+
     done: false
   });
 
-  $("taskInput").value = "";
-  $("descriptionInput").value = "";
-  $("dueDate").value = "";
-  $("recurring").value = "none";
+  taskInput.value = "";
+
+  if ($("descriptionInput"))
+    $("descriptionInput").value = "";
+
+  if ($("dueDate"))
+    $("dueDate").value = "";
+
+  if ($("recurring"))
+    $("recurring").value = "none";
 
   renderTasks();
   renderCalendar();
@@ -281,7 +368,10 @@ function addTask() {
 
 function toggleTask(id) {
 
-  const task = tasks.find(t => t.id === id);
+  const task =
+    tasks.find(
+      t => t.id === id
+    );
 
   if (!task) return;
 
@@ -296,9 +386,10 @@ function toggleTask(id) {
 
 function deleteTask(id) {
 
-  tasks = tasks.filter(
-    t => t.id !== id
-  );
+  tasks =
+    tasks.filter(
+      t => t.id !== id
+    );
 
   renderTasks();
   renderCalendar();
@@ -309,22 +400,31 @@ function getCountdown(date) {
 
   if (!date) return "";
 
-  const target = new Date(date);
+  const target =
+    new Date(date);
 
   if (isNaN(target)) return "";
 
-  const diff = target - new Date();
+  const diff =
+    target - new Date();
 
-  if (diff <= 0) return "Overdue";
+  if (diff <= 0)
+    return "Overdue";
 
   const d =
-    Math.floor(diff / 86400000);
+    Math.floor(
+      diff / 86400000
+    );
 
   const h =
-    Math.floor(diff / 3600000 % 24);
+    Math.floor(
+      diff / 3600000 % 24
+    );
 
   const m =
-    Math.floor(diff / 60000 % 60);
+    Math.floor(
+      diff / 60000 % 60
+    );
 
   return `${d}d ${h}h ${m}m remaining`;
 
@@ -332,11 +432,18 @@ function getCountdown(date) {
 
 function renderTasks() {
 
-  $("taskList").innerHTML =
+  const taskList =
+    $("taskList");
+
+  if (!taskList) return;
+
+  taskList.innerHTML =
     tasks.map(task => {
 
       const countdown =
-        getCountdown(task.dueDate);
+        getCountdown(
+          task.dueDate
+        );
 
       return `
 
@@ -406,7 +513,9 @@ Math.random() * quotes.length
 </p>
 `;
 
-  document.body.appendChild(popup);
+  document.body.appendChild(
+    popup
+  );
 
   setTimeout(
     () => popup.remove(),
@@ -439,65 +548,82 @@ const days = [
 
 function renderCalendar() {
 
-$("monthTitle").textContent =
-`${months[currentMonth]} ${currentYear}`;
+  const calendar =
+    $("calendar");
 
-$("calendar").innerHTML =
-days.map(d =>
-`<div class="day-name">${d}</div>`
-).join("");
+  const monthTitle =
+    $("monthTitle");
 
-const firstDay =
-new Date(
-currentYear,
-currentMonth,
-1
-).getDay();
+  if (!calendar || !monthTitle)
+    return;
 
-const daysInMonth =
-new Date(
-currentYear,
-currentMonth + 1,
-0
-).getDate();
+  monthTitle.textContent =
+  `${months[currentMonth]} ${currentYear}`;
 
-for (let i = 0; i < firstDay; i++) {
-$("calendar").innerHTML +=
-"<div></div>";
-}
+  calendar.innerHTML =
+  days.map(d =>
+  `<div class="day-name">${d}</div>`
+  ).join("");
 
-for (let day = 1;
-day <= daysInMonth;
-day++) {
+  const firstDay =
+  new Date(
+    currentYear,
+    currentMonth,
+    1
+  ).getDay();
 
-const monthFormatted =
-String(currentMonth + 1)
-.padStart(2, "0");
+  const daysInMonth =
+  new Date(
+    currentYear,
+    currentMonth + 1,
+    0
+  ).getDate();
 
-const dayFormatted =
-String(day)
-.padStart(2, "0");
+  for (
+    let i = 0;
+    i < firstDay;
+    i++
+  ) {
 
-const date =
-`${currentYear}-${monthFormatted}-${dayFormatted}`;
+    calendar.innerHTML +=
+    "<div></div>";
 
-const taskHTML =
-tasks
-.filter(
-t =>
-t.dueDate &&
-t.dueDate.startsWith(date)
-)
-.map(
-t => `
+  }
+
+  for (
+    let day = 1;
+    day <= daysInMonth;
+    day++
+  ) {
+
+    const monthFormatted =
+    String(currentMonth + 1)
+    .padStart(2, "0");
+
+    const dayFormatted =
+    String(day)
+    .padStart(2, "0");
+
+    const date =
+    `${currentYear}-${monthFormatted}-${dayFormatted}`;
+
+    const taskHTML =
+    tasks
+    .filter(
+      t =>
+      t.dueDate &&
+      t.dueDate.startsWith(date)
+    )
+    .map(
+      t => `
 <div class="calendar-task">
 ${t.text}
 </div>
 `
-)
-.join("");
+    )
+    .join("");
 
-$("calendar").innerHTML += `
+    calendar.innerHTML += `
 
 <div class="day"
 onclick="selectDate('${date}')">
@@ -512,49 +638,61 @@ ${taskHTML}
 
 `;
 
-}
+  }
 
 }
 
 function selectDate(date) {
 
-const currentTime =
-$("dueDate")
-.value
-.split("T")[1]
-|| "12:00";
+  const dueDate =
+    $("dueDate");
 
-$("dueDate").value =
-`${date}T${currentTime}`;
+  if (!dueDate) return;
 
-window.scrollTo({
-top: 0,
-behavior: "smooth"
-});
+  const currentTime =
+  dueDate.value
+  .split("T")[1]
+  || "12:00";
+
+  dueDate.value =
+  `${date}T${currentTime}`;
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 
 }
 
 function changeMonth(num) {
 
-currentMonth += num;
+  currentMonth += num;
 
-if (currentMonth < 0) {
+  if (currentMonth < 0) {
 
-currentMonth = 11;
-currentYear--;
+    currentMonth = 11;
+    currentYear--;
+
+  }
+
+  if (currentMonth > 11) {
+
+    currentMonth = 0;
+    currentYear++;
+
+  }
+
+  renderCalendar();
 
 }
 
-if (currentMonth > 11) {
+/* =========================
+   SAFE PAGE LOAD
+========================= */
 
-currentMonth = 0;
-currentYear++;
+window.onload = () => {
 
-}
+  renderTasks();
+  renderCalendar();
 
-renderCalendar();
-
-}
-
-renderTasks();
-renderCalendar();
+};

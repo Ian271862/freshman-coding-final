@@ -15,26 +15,7 @@ const quotes = [
   "Excellent work!"
 ];
 
-/* =========================
-   SAFE ELEMENT SELECTOR
-========================= */
-
-const $ = id => {
-
-  const el =
-    document.getElementById(id);
-
-  if (!el) {
-
-    console.error(
-      `Missing element: ${id}`
-    );
-
-  }
-
-  return el;
-
-};
+const $ = id => document.getElementById(id);
 
 /* =========================
    NOTIFICATIONS
@@ -52,29 +33,6 @@ async function enableNotifications() {
 
   }
 
-  if (Notification.permission === "granted") {
-
-    new Notification(
-      "Notifications Already Enabled 🔔",
-      {
-        body: "Smart reminders are active."
-      }
-    );
-
-    return;
-
-  }
-
-  if (Notification.permission === "denied") {
-
-    alert(
-      "Notifications are blocked in browser settings."
-    );
-
-    return;
-
-  }
-
   const permission =
     await Notification.requestPermission();
 
@@ -83,14 +41,8 @@ async function enableNotifications() {
     new Notification(
       "Notifications Enabled 🔔",
       {
-        body: "Smart reminders are now active."
+        body: "Smart reminders are active."
       }
-    );
-
-  } else {
-
-    alert(
-      "You chose not to enable notifications."
     );
 
   }
@@ -105,9 +57,7 @@ async function getWeatherTasks() {
 
   if (!navigator.geolocation) {
 
-    alert(
-      "Geolocation is not supported."
-    );
+    alert("Geolocation is not supported.");
 
     return;
 
@@ -132,23 +82,13 @@ async function getWeatherTasks() {
         const data =
           await response.json();
 
-        if (data.cod !== "200") {
-
-          alert(
-            "Weather API failed. Check your API key."
-          );
-
-          return;
-
-        }
-
         const forecast =
           data.list?.[0];
 
         if (!forecast) {
 
           alert(
-            "Weather forecast unavailable."
+            "Weather unavailable."
           );
 
           return;
@@ -169,11 +109,6 @@ async function getWeatherTasks() {
             "Rain is predicted today."
           );
 
-          sendNotification(
-            "Rain Expected ☔",
-            "Take an umbrella today."
-          );
-
         }
 
         if (weather.includes("snow")) {
@@ -181,11 +116,6 @@ async function getWeatherTasks() {
           createWeatherTask(
             "Wear warm clothes ❄️",
             "Snow is predicted today."
-          );
-
-          sendNotification(
-            "Snow Expected ❄️",
-            "Wear warm clothes today."
           );
 
         }
@@ -197,11 +127,6 @@ async function getWeatherTasks() {
             "Hot weather expected today."
           );
 
-          sendNotification(
-            "Hot Weather ☀️",
-            "Stay hydrated today."
-          );
-
         }
 
         if (temp <= 45) {
@@ -211,47 +136,32 @@ async function getWeatherTasks() {
             "Cold weather expected today."
           );
 
-          sendNotification(
-            "Cold Weather 🧥",
-            "Bring a jacket today."
-          );
-
         }
-
-        alert(
-          "Weather smart tasks updated successfully."
-        );
 
         renderTasks();
         renderCalendar();
+
+        alert(
+          "Weather smart tasks updated."
+        );
 
       } catch (error) {
 
         console.error(error);
 
         alert(
-          "Could not connect to weather service."
+          "Could not load weather."
         );
 
       }
 
     },
 
-    error => {
+    () => {
 
-      if (error.code === 1) {
-
-        alert(
-          "Location access denied."
-        );
-
-      } else {
-
-        alert(
-          "Unable to get location."
-        );
-
-      }
+      alert(
+        "Location access denied."
+      );
 
     }
 
@@ -264,45 +174,36 @@ function createWeatherTask(
   description
 ) {
 
-  const alreadyExists =
+  const exists =
     tasks.some(
       t =>
       t.text === title &&
       !t.done
     );
 
-  if (alreadyExists) return;
+  if (exists) return;
 
   tasks.push({
-    id: Date.now() + Math.random(),
+
+    id:
+      Date.now() + Math.random(),
+
     text: title,
+
     description,
+
     priority: "medium",
+
     dueDate:
       new Date()
       .toISOString()
       .slice(0, 16),
+
     recurring: "none",
+
     done: false
+
   });
-
-}
-
-function sendNotification(
-  title,
-  body
-) {
-
-  if (
-    "Notification" in window &&
-    Notification.permission === "granted"
-  ) {
-
-    new Notification(title, {
-      body
-    });
-
-  }
 
 }
 
@@ -312,13 +213,8 @@ function sendNotification(
 
 function addTask() {
 
-  const taskInput =
-    $("taskInput");
-
-  if (!taskInput) return;
-
   const text =
-    taskInput.value.trim();
+    $("taskInput").value.trim();
 
   if (!text) {
 
@@ -331,35 +227,32 @@ function addTask() {
   }
 
   tasks.push({
-    id: Date.now() + Math.random(),
+
+    id:
+      Date.now() + Math.random(),
 
     text,
 
     description:
-      $("descriptionInput")?.value.trim() || "",
+      $("descriptionInput").value,
 
     priority:
-      $("priority")?.value || "medium",
+      $("priority").value,
 
     dueDate:
-      $("dueDate")?.value || "",
+      $("dueDate").value,
 
     recurring:
-      $("recurring")?.value || "none",
+      $("recurring").value,
 
     done: false
+
   });
 
-  taskInput.value = "";
-
-  if ($("descriptionInput"))
-    $("descriptionInput").value = "";
-
-  if ($("dueDate"))
-    $("dueDate").value = "";
-
-  if ($("recurring"))
-    $("recurring").value = "none";
+  $("taskInput").value = "";
+  $("descriptionInput").value = "";
+  $("dueDate").value = "";
+  $("recurring").value = "none";
 
   renderTasks();
   renderCalendar();
@@ -403,8 +296,6 @@ function getCountdown(date) {
   const target =
     new Date(date);
 
-  if (isNaN(target)) return "";
-
   const diff =
     target - new Date();
 
@@ -432,12 +323,7 @@ function getCountdown(date) {
 
 function renderTasks() {
 
-  const taskList =
-    $("taskList");
-
-  if (!taskList) return;
-
-  taskList.innerHTML =
+  $("taskList").innerHTML =
     tasks.map(task => {
 
       const countdown =
@@ -502,8 +388,11 @@ function showPopup() {
   popup.className = "popup";
 
   popup.innerHTML = `
+
 <h3>Task Completed 🎉</h3>
+
 <br>
+
 <p>
 ${quotes[
 Math.floor(
@@ -511,6 +400,7 @@ Math.random() * quotes.length
 )
 ]}
 </p>
+
 `;
 
   document.body.appendChild(
@@ -553,9 +443,6 @@ function renderCalendar() {
 
   const monthTitle =
     $("monthTitle");
-
-  if (!calendar || !monthTitle)
-    return;
 
   monthTitle.textContent =
   `${months[currentMonth]} ${currentYear}`;
@@ -644,17 +531,12 @@ ${taskHTML}
 
 function selectDate(date) {
 
-  const dueDate =
-    $("dueDate");
-
-  if (!dueDate) return;
-
   const currentTime =
-  dueDate.value
+  $("dueDate").value
   .split("T")[1]
   || "12:00";
 
-  dueDate.value =
+  $("dueDate").value =
   `${date}T${currentTime}`;
 
   window.scrollTo({
@@ -687,7 +569,7 @@ function changeMonth(num) {
 }
 
 /* =========================
-   SAFE PAGE LOAD
+   PAGE LOAD
 ========================= */
 
 window.onload = () => {

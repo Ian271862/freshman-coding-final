@@ -1,235 +1,369 @@
-let currentDate = new Date();
+const WEATHER_API_KEY = "b7efa27cad39347c3d0075af7b170cd4";
 
 let tasks = [];
 
-const monthNames = [
-"January","February","March",
-"April","May","June",
-"July","August","September",
-"October","November","December"
+const quotes = [
+  "Great job!",
+  "You’re crushing it!",
+  "Keep going!",
+  "Momentum creates success.",
+  "Nice work!",
+  "One more win today.",
+  "Stay consistent.",
+  "You did it!",
+  "Progress matters.",
+  "Excellent work!"
 ];
 
-const dayNames = [
-"Sun","Mon","Tue",
-"Wed","Thu","Fri","Sat"
-];
+const $ = id => document.getElementById(id);
 
-function enableNotifications(){
+/* =========================
+   NOTIFICATIONS
+========================= */
 
-if(!("Notification" in window)){
-alert("Notifications are not supported.");
-return;
-}
+async function enableNotifications() {
 
-Notification.requestPermission()
-.then(permission=>{
+  if (!("Notification" in window)) {
+    alert("Notifications are not supported on this device.");
+    return;
+  }
 
-if(permission==="granted"){
+  if (Notification.permission === "granted") {
 
-new Notification(
-"Notifications Enabled 🔔",
-{
-body:"Smart reminders are active."
-}
-);
+    new Notification(
+      "Notifications Already Enabled 🔔",
+      {
+        body: "Smart reminders are active."
+      }
+    );
 
-}else{
+    return;
+  }
 
-alert("Notifications denied.");
+  if (Notification.permission === "denied") {
 
-}
+    alert(
+      "Notifications are blocked in browser settings."
+    );
 
-});
+    return;
+  }
 
-}
+  const permission =
+    await Notification.requestPermission();
 
-function getWeatherTasks(){
+  if (permission === "granted") {
 
-alert("Weather smart tasks enabled.");
+    new Notification(
+      "Notifications Enabled 🔔",
+      {
+        body: "Smart reminders are now active."
+      }
+    );
 
-}
+  } else {
 
-function addTask(){
+    alert(
+      "You chose not to enable notifications."
+    );
 
-try{
-
-const taskInput =
-document.getElementById("taskInput");
-
-const descriptionInput =
-document.getElementById("descriptionInput");
-
-const priority =
-document.getElementById("priority");
-
-const dueDate =
-document.getElementById("dueDate");
-
-const recurring =
-document.getElementById("recurring");
-
-if(!taskInput){
-console.error("taskInput not found");
-return;
-}
-
-if(taskInput.value.trim()===""){
-
-alert("Please enter a task.");
-return;
+  }
 
 }
 
-tasks.push({
-id:Date.now(),
+/* =========================
+   WEATHER SMART TASKS
+========================= */
 
-name:taskInput.value.trim(),
+async function getWeatherTasks() {
 
-description:
-descriptionInput
-? descriptionInput.value
-: "",
+  if (!navigator.geolocation) {
 
-priority:
-priority
-? priority.value
-: "medium",
+    alert("Geolocation is not supported.");
+    return;
 
-dueDate:
-dueDate && dueDate.value
-? dueDate.value
-: new Date().toISOString(),
+  }
 
-recurring:
-recurring
-? recurring.value
-: "none",
+  navigator.geolocation.getCurrentPosition(
 
-done:false
-});
+    async position => {
 
-taskInput.value="";
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
 
-if(descriptionInput)
-descriptionInput.value="";
+      try {
 
-if(dueDate)
-dueDate.value="";
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=imperial`
+        );
 
-if(recurring)
-recurring.value="none";
+        const data = await response.json();
 
-renderTasks();
-renderCalendar();
+        if (data.cod !== "200") {
 
-}catch(error){
+          alert(
+            "Weather API failed. Check your API key."
+          );
 
-console.error(
-"addTask crashed:",
-error
-);
+          return;
 
-alert(
-"There was an error adding the task."
-);
+        }
+
+        const forecast = data.list[0];
+
+        const weather =
+          forecast.weather[0].main.toLowerCase();
+
+        const temp =
+          forecast.main.temp;
+
+        if (weather.includes("rain")) {
+
+          createWeatherTask(
+            "Take an umbrella ☔",
+            "Rain is predicted today."
+          );
+
+          sendNotification(
+            "Rain Expected ☔",
+            "Take an umbrella today."
+          );
+
+        }
+
+        if (weather.includes("snow")) {
+
+          createWeatherTask(
+            "Wear warm clothes ❄️",
+            "Snow is predicted today."
+          );
+
+          sendNotification(
+            "Snow Expected ❄️",
+            "Wear warm clothes today."
+          );
+
+        }
+
+        if (temp >= 90) {
+
+          createWeatherTask(
+            "Drink extra water 🥤",
+            "Hot weather expected today."
+          );
+
+          sendNotification(
+            "Hot Weather ☀️",
+            "Stay hydrated today."
+          );
+
+        }
+
+        if (temp <= 45) {
+
+          createWeatherTask(
+            "Bring a jacket 🧥",
+            "Cold weather expected today."
+          );
+
+          sendNotification(
+            "Cold Weather 🧥",
+            "Bring a jacket today."
+          );
+
+        }
+
+        alert(
+          "Weather smart tasks updated successfully."
+        );
+
+        renderTasks();
+        renderCalendar();
+
+      } catch (error) {
+
+        console.error(error);
+
+        alert(
+          "Could not connect to weather service."
+        );
+
+      }
+
+    },
+
+    error => {
+
+      if (error.code === 1) {
+
+        alert(
+          "Location access denied."
+        );
+
+      } else {
+
+        alert(
+          "Unable to get location."
+        );
+
+      }
+
+    }
+
+  );
 
 }
 
-}
+function createWeatherTask(title, description) {
 
-function deleteTask(id){
+  const alreadyExists = tasks.some(
+    t => t.text === title && !t.done
+  );
 
-tasks =
-tasks.filter(
-t=>t.id!==id
-);
+  if (alreadyExists) return;
 
-renderTasks();
-renderCalendar();
-
-}
-
-function toggleTask(id){
-
-const task =
-tasks.find(
-t=>t.id===id
-);
-
-if(!task)return;
-
-task.done=!task.done;
-
-renderTasks();
-renderCalendar();
+  tasks.push({
+    id: Date.now() + Math.random(),
+    text: title,
+    description,
+    priority: "medium",
+    dueDate: new Date().toISOString().slice(0, 16),
+    recurring: "none",
+    done: false
+  });
 
 }
 
-function editTask(id){
+function sendNotification(title, body) {
 
-const task =
-tasks.find(
-t=>t.id===id
-);
+  if (
+    "Notification" in window &&
+    Notification.permission === "granted"
+  ) {
 
-if(!task)return;
+    new Notification(title, {
+      body
+    });
 
-const newText =
-prompt(
-"Edit task",
-task.name
-);
-
-if(
-newText===null ||
-newText.trim()===""
-)return;
-
-task.name=newText;
-
-renderTasks();
-renderCalendar();
+  }
 
 }
 
-function renderTasks(){
+/* =========================
+   TASKS
+========================= */
 
-const taskList =
-document.getElementById("taskList");
+function addTask() {
 
-if(!taskList)return;
+  const text = $("taskInput").value.trim();
 
-taskList.innerHTML="";
+  if (!text) return;
 
-tasks.forEach(task=>{
+  tasks.push({
+    id: Date.now() + Math.random(),
+    text,
+    description: $("descriptionInput").value.trim(),
+    priority: $("priority").value,
+    dueDate: $("dueDate").value,
+    recurring: $("recurring").value,
+    done: false
+  });
 
-taskList.innerHTML += `
+  $("taskInput").value = "";
+  $("descriptionInput").value = "";
+  $("dueDate").value = "";
+  $("recurring").value = "none";
 
-<div class="task">
+  renderTasks();
+  renderCalendar();
+
+}
+
+function toggleTask(id) {
+
+  const task = tasks.find(t => t.id === id);
+
+  if (!task) return;
+
+  task.done = !task.done;
+
+  showPopup();
+
+  renderTasks();
+  renderCalendar();
+
+}
+
+function deleteTask(id) {
+
+  tasks = tasks.filter(
+    t => t.id !== id
+  );
+
+  renderTasks();
+  renderCalendar();
+
+}
+
+function getCountdown(date) {
+
+  if (!date) return "";
+
+  const target = new Date(date);
+
+  if (isNaN(target)) return "";
+
+  const diff = target - new Date();
+
+  if (diff <= 0) return "Overdue";
+
+  const d =
+    Math.floor(diff / 86400000);
+
+  const h =
+    Math.floor(diff / 3600000 % 24);
+
+  const m =
+    Math.floor(diff / 60000 % 60);
+
+  return `${d}d ${h}h ${m}m remaining`;
+
+}
+
+function renderTasks() {
+
+  $("taskList").innerHTML =
+    tasks.map(task => {
+
+      const countdown =
+        getCountdown(task.dueDate);
+
+      return `
+
+<div class="task ${task.done ? "done" : ""}">
 
 <div class="task-left">
 
-<h3 style="
-text-decoration:
-${task.done ? "line-through" : "none"};
-">
-${task.name}
-</h3>
+<h3>${task.text}</h3>
 
-<p>${task.description}</p>
+${task.description ?
+`<div class="description">
+${task.description}
+</div>` : ""}
 
-<div class="badge ${task.priority}">
+<span class="badge ${task.priority}">
 ${task.priority.toUpperCase()}
-</div>
+</span>
 
-<div class="repeat">
-🔁 ${task.recurring}
-</div>
+<br><br>
 
-<br>
+${task.dueDate ?
+`<strong>Due:</strong>
+${new Date(task.dueDate).toLocaleString()}` : ""}
 
-<strong>Due:</strong>
-${new Date(task.dueDate).toLocaleString()}
+<br><br>
+
+${countdown}
 
 </div>
 
@@ -237,10 +371,6 @@ ${new Date(task.dueDate).toLocaleString()}
 
 <button onclick="toggleTask(${task.id})">
 ${task.done ? "Undo" : "Done"}
-</button>
-
-<button onclick="editTask(${task.id})">
-Edit
 </button>
 
 <button onclick="deleteTask(${task.id})">
@@ -253,181 +383,127 @@ Delete
 
 `;
 
-});
+    }).join("");
 
 }
 
-function selectDate(date){
+function showPopup() {
 
-const dueDateInput =
-document.getElementById("dueDate");
+  const popup =
+    document.createElement("div");
 
-if(!dueDateInput)return;
+  popup.className = "popup";
 
-const currentTime =
-dueDateInput.value.split("T")[1]
-|| "12:00";
-
-dueDateInput.value =
-`${date}T${currentTime}`;
-
-window.scrollTo({
-top:0,
-behavior:"smooth"
-});
-
-}
-
-function changeViewDate(direction){
-
-const view =
-document.getElementById(
-"calendarView"
-).value;
-
-if(view==="month"){
-
-currentDate.setMonth(
-currentDate.getMonth()
-+ direction
-);
-
-}
-
-else if(view==="week"){
-
-currentDate.setDate(
-currentDate.getDate()
-+ (direction*7)
-);
-
-}
-
-else if(view==="day"){
-
-currentDate.setDate(
-currentDate.getDate()
-+ direction
-);
-
-}
-
-else if(view==="year"){
-
-currentDate.setFullYear(
-currentDate.getFullYear()
-+ direction
-);
-
-}
-
-renderCalendar();
-
-}
-
-function openMonth(index){
-
-currentDate.setMonth(index);
-
-document.getElementById(
-"calendarView"
-).value = "month";
-
-renderCalendar();
-
-}
-
-function renderCalendar(){
-
-const calendar =
-document.getElementById("calendar");
-
-const monthTitle =
-document.getElementById("monthTitle");
-
-const view =
-document.getElementById(
-"calendarView"
-).value;
-
-if(!calendar || !monthTitle)return;
-
-calendar.innerHTML="";
-
-calendar.className=
-"calendar-grid";
-
-const year =
-currentDate.getFullYear();
-
-const month =
-currentDate.getMonth();
-
-if(view==="month"){
-
-calendar.classList.add(
-"month-view"
-);
-
-monthTitle.textContent =
-`${monthNames[month]} ${year}`;
-
-dayNames.forEach(name=>{
-
-calendar.innerHTML += `
-<div class="day-name">
-${name}
-</div>
+  popup.innerHTML = `
+<h3>Task Completed 🎉</h3>
+<br>
+<p>
+${quotes[
+Math.floor(
+Math.random() * quotes.length
+)
+]}
+</p>
 `;
 
-});
+  document.body.appendChild(popup);
+
+  setTimeout(
+    () => popup.remove(),
+    3000
+  );
+
+}
+
+/* =========================
+   CALENDAR
+========================= */
+
+let currentMonth =
+new Date().getMonth();
+
+let currentYear =
+new Date().getFullYear();
+
+const months = [
+"January","February","March",
+"April","May","June",
+"July","August","September",
+"October","November","December"
+];
+
+const days = [
+"Sun","Mon","Tue",
+"Wed","Thu","Fri","Sat"
+];
+
+function renderCalendar() {
+
+$("monthTitle").textContent =
+`${months[currentMonth]} ${currentYear}`;
+
+$("calendar").innerHTML =
+days.map(d =>
+`<div class="day-name">${d}</div>`
+).join("");
 
 const firstDay =
-new Date(year,month,1).getDay();
+new Date(
+currentYear,
+currentMonth,
+1
+).getDay();
 
 const daysInMonth =
-new Date(year,month+1,0).getDate();
+new Date(
+currentYear,
+currentMonth + 1,
+0
+).getDate();
 
-for(let i=0;i<firstDay;i++){
-
-calendar.innerHTML += `
-<div class="empty"></div>
-`;
-
+for (let i = 0; i < firstDay; i++) {
+$("calendar").innerHTML +=
+"<div></div>";
 }
 
-for(let day=1;
-day<=daysInMonth;
-day++){
+for (let day = 1;
+day <= daysInMonth;
+day++) {
+
+const monthFormatted =
+String(currentMonth + 1)
+.padStart(2, "0");
+
+const dayFormatted =
+String(day)
+.padStart(2, "0");
 
 const date =
-`${year}-${String(month+1)
-.padStart(2,"0")}-${String(day)
-.padStart(2,"0")}`;
+`${currentYear}-${monthFormatted}-${dayFormatted}`;
 
 const taskHTML =
 tasks
 .filter(
 t =>
 t.dueDate &&
-t.dueDate.split("T")[0]===date
+t.dueDate.startsWith(date)
 )
 .map(
 t => `
 <div class="calendar-task">
-${t.name}
+${t.text}
 </div>
 `
 )
 .join("");
 
-calendar.innerHTML += `
+$("calendar").innerHTML += `
 
 <div class="day"
 onclick="selectDate('${date}')">
 
 <div class="day-number">
-${month+1}/${day}
+${day}
 </div>
 
 ${taskHTML}
@@ -440,142 +516,43 @@ ${taskHTML}
 
 }
 
-else if(view==="week"){
+function selectDate(date) {
 
-calendar.classList.add(
-"week-view"
-);
+const currentTime =
+$("dueDate")
+.value
+.split("T")[1]
+|| "12:00";
 
-monthTitle.textContent =
-`${monthNames[month]} ${year}`;
+$("dueDate").value =
+`${date}T${currentTime}`;
 
-for(let i=0;i<7;i++){
-
-const start =
-new Date(currentDate);
-
-start.setDate(
-currentDate.getDate()
--currentDate.getDay()
-+i
-);
-
-const dateString =
-start.toISOString()
-.split("T")[0];
-
-const taskHTML =
-tasks
-.filter(
-t =>
-t.dueDate &&
-t.dueDate.split("T")[0]===dateString
-)
-.map(
-t => `
-<div class="calendar-task">
-${t.name}
-</div>
-`
-)
-.join("");
-
-calendar.innerHTML += `
-
-<div class="day"
-onclick="selectDate('${dateString}')">
-
-<div class="day-number">
-${dayNames[i]}
-<br>
-${start.getMonth()+1}/${start.getDate()}
-</div>
-
-${taskHTML}
-
-</div>
-
-`;
-
-}
-
-}
-
-else if(view==="day"){
-
-calendar.classList.add(
-"day-view"
-);
-
-monthTitle.textContent =
-currentDate.toDateString();
-
-const dateString =
-currentDate.toISOString()
-.split("T")[0];
-
-const taskHTML =
-tasks
-.filter(
-t =>
-t.dueDate &&
-t.dueDate.split("T")[0]===dateString
-)
-.map(
-t => `
-<div class="calendar-task">
-${t.name}
-</div>
-`
-)
-.join("");
-
-calendar.innerHTML += `
-
-<div class="day"
-style="min-height:300px"
-onclick="selectDate('${dateString}')">
-
-<h2>
-${currentDate.toDateString()}
-</h2>
-
-<br>
-
-${taskHTML || "No tasks yet"}
-
-</div>
-
-`;
-
-}
-
-else if(view==="year"){
-
-calendar.classList.add(
-"year-view"
-);
-
-monthTitle.textContent =
-year;
-
-monthNames.forEach(
-(name,index)=>{
-
-calendar.innerHTML += `
-
-<div class="month-box"
-onclick="openMonth(${index})">
-
-${name}
-
-</div>
-
-`;
-
+window.scrollTo({
+top: 0,
+behavior: "smooth"
 });
 
 }
+
+function changeMonth(num) {
+
+currentMonth += num;
+
+if (currentMonth < 0) {
+
+currentMonth = 11;
+currentYear--;
+
+}
+
+if (currentMonth > 11) {
+
+currentMonth = 0;
+currentYear++;
+
+}
+
+renderCalendar();
 
 }
 

@@ -25,20 +25,20 @@ max-width:1100px;
 margin:auto;
 background:white;
 padding:25px;
-border-radius:18px;
-box-shadow:0 4px 15px rgba(0,0,0,0.08);
+border-radius:20px;
+box-shadow:0 4px 18px rgba(0,0,0,0.08);
 }
 
 h1{
 text-align:center;
 margin-bottom:25px;
-font-size:36px;
+font-size:38px;
 }
 
 .add-row{
 display:grid;
 gap:12px;
-margin-bottom:25px;
+margin-bottom:30px;
 }
 
 input,
@@ -47,14 +47,14 @@ select,
 button{
 width:100%;
 padding:12px;
-border-radius:10px;
+border-radius:12px;
 border:1px solid #ccc;
 font-size:15px;
 }
 
 textarea{
 resize:vertical;
-min-height:90px;
+min-height:100px;
 }
 
 button{
@@ -63,11 +63,12 @@ color:white;
 border:none;
 cursor:pointer;
 font-weight:bold;
-transition:.2s;
+transition:0.2s;
 }
 
 button:hover{
-opacity:.9;
+opacity:0.9;
+transform:scale(1.01);
 }
 
 .weather-buttons{
@@ -78,19 +79,29 @@ gap:10px;
 
 #taskList{
 display:grid;
-gap:15px;
+gap:16px;
 margin-top:20px;
 }
 
 .task{
 background:#f7f8fc;
-border-radius:14px;
-padding:16px;
+border-radius:16px;
+padding:18px;
 display:flex;
 justify-content:space-between;
 gap:20px;
 flex-wrap:wrap;
 border:1px solid #e3e6f0;
+transition:0.2s;
+}
+
+.task.done{
+opacity:0.7;
+background:#ebffef;
+}
+
+.task.done h3{
+text-decoration:line-through;
 }
 
 .task-left{
@@ -98,105 +109,22 @@ flex:1;
 min-width:240px;
 }
 
+.description{
+margin-top:10px;
+line-height:1.5;
+color:#444;
+}
+
 .task-buttons{
 display:flex;
 gap:10px;
 flex-wrap:wrap;
+align-items:flex-start;
 }
 
 .task-buttons button{
 width:auto;
 padding:10px 16px;
-}
-
-.calendar-box{
-margin-top:35px;
-background:#fafafa;
-border-radius:16px;
-padding:20px;
-border:1px solid #ddd;
-}
-
-.calendar-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:10px;
-flex-wrap:wrap;
-margin-bottom:20px;
-}
-
-.calendar-header button{
-width:auto;
-padding:10px 18px;
-}
-
-#monthTitle{
-font-size:24px;
-font-weight:bold;
-}
-
-.calendar-grid{
-display:grid;
-gap:8px;
-}
-
-.month-view,
-.week-view{
-grid-template-columns:repeat(7,1fr);
-}
-
-.year-view{
-grid-template-columns:repeat(4,1fr);
-}
-
-.day-view{
-grid-template-columns:1fr;
-}
-
-.day-name{
-background:#dde3f8;
-padding:10px;
-text-align:center;
-font-weight:bold;
-border-radius:8px;
-}
-
-.day{
-background:white;
-border-radius:12px;
-min-height:120px;
-padding:8px;
-border:1px solid #e1e1e1;
-cursor:pointer;
-display:flex;
-flex-direction:column;
-}
-
-.day-number{
-font-size:12px;
-font-weight:bold;
-color:#666;
-margin-bottom:6px;
-}
-
-.calendar-task{
-background:#4f46e5;
-color:white;
-padding:4px 6px;
-border-radius:6px;
-font-size:11px;
-margin-top:5px;
-}
-
-.month-box{
-background:white;
-padding:25px;
-border-radius:14px;
-text-align:center;
-font-weight:bold;
-cursor:pointer;
-border:1px solid #ddd;
 }
 
 .badge{
@@ -205,7 +133,7 @@ padding:5px 10px;
 border-radius:999px;
 font-size:12px;
 font-weight:bold;
-margin-top:10px;
+margin-top:12px;
 }
 
 .urgent{
@@ -224,26 +152,117 @@ background:#dbeaff;
 background:#daf7d4;
 }
 
-.repeat{
-margin-top:10px;
-font-size:13px;
-color:#4f46e5;
+.calendar-box{
+margin-top:35px;
+background:#fafafa;
+border-radius:18px;
+padding:20px;
+border:1px solid #ddd;
+}
+
+.calendar-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+gap:12px;
+flex-wrap:wrap;
+}
+
+.calendar-header button{
+width:auto;
+padding:10px 18px;
+}
+
+#monthTitle{
+font-size:28px;
 font-weight:bold;
 }
 
-.empty{
-background:transparent;
+.calendar-grid{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:8px;
 }
 
-@media(max-width:700px){
+.day-name{
+background:#dde3f8;
+padding:12px;
+text-align:center;
+font-weight:bold;
+border-radius:10px;
+}
 
-.month-view,
-.week-view{
+.day{
+background:white;
+border-radius:14px;
+min-height:120px;
+padding:10px;
+border:1px solid #e1e1e1;
+cursor:pointer;
+transition:0.2s;
+display:flex;
+flex-direction:column;
+}
+
+.day:hover{
+transform:translateY(-2px);
+box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+.day-number{
+font-size:13px;
+font-weight:bold;
+color:#666;
+margin-bottom:8px;
+}
+
+.calendar-task{
+background:#4f46e5;
+color:white;
+padding:5px 7px;
+border-radius:7px;
+font-size:11px;
+margin-top:5px;
+word-break:break-word;
+}
+
+.popup{
+position:fixed;
+top:30px;
+right:30px;
+background:white;
+padding:22px;
+border-radius:16px;
+box-shadow:0 6px 20px rgba(0,0,0,0.18);
+z-index:9999;
+animation:fadeIn 0.3s ease;
+max-width:260px;
+}
+
+.popup h3{
+margin-bottom:8px;
+}
+
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(-10px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+@media(max-width:800px){
+
+.calendar-grid{
 grid-template-columns:repeat(2,1fr);
 }
 
-.year-view{
-grid-template-columns:repeat(2,1fr);
+.weather-buttons{
+grid-template-columns:1fr;
 }
 
 .calendar-header{
@@ -264,9 +283,14 @@ align-items:stretch;
 
 <div class="add-row">
 
-<input id="taskInput" type="text" placeholder="Task name">
+<input
+id="taskInput"
+type="text"
+placeholder="Task name">
 
-<textarea id="descriptionInput" placeholder="Task description"></textarea>
+<textarea
+id="descriptionInput"
+placeholder="Task description"></textarea>
 
 <select id="priority">
 <option value="urgent">Urgent</option>
@@ -275,7 +299,9 @@ align-items:stretch;
 <option value="low">Low</option>
 </select>
 
-<input id="dueDate" type="datetime-local">
+<input
+id="dueDate"
+type="datetime-local">
 
 <select id="recurring">
 <option value="none">No Recurring</option>
@@ -286,11 +312,20 @@ align-items:stretch;
 </select>
 
 <div class="weather-buttons">
-<button onclick="enableNotifications()">Enable Notifications</button>
-<button onclick="getWeatherTasks()">Weather Smart Tasks</button>
+
+<button onclick="enableNotifications()">
+Enable Notifications
+</button>
+
+<button onclick="getWeatherTasks()">
+Weather Smart Tasks
+</button>
+
 </div>
 
-<button onclick="addTask()">Add Task</button>
+<button onclick="addTask()">
+Add Task
+</button>
 
 </div>
 
@@ -300,22 +335,22 @@ align-items:stretch;
 
 <div class="calendar-header">
 
-<button onclick="changeViewDate(-1)">◀</button>
+<button onclick="changeMonth(-1)">
+◀ Previous
+</button>
 
 <div id="monthTitle"></div>
 
-<button onclick="changeViewDate(1)">▶</button>
-
-<select id="calendarView" onchange="renderCalendar()">
-<option value="month">Month View</option>
-<option value="week">Week View</option>
-<option value="day">Day View</option>
-<option value="year">Year View</option>
-</select>
+<button onclick="changeMonth(1)">
+Next ▶
+</button>
 
 </div>
 
-<div id="calendar" class="calendar-grid"></div>
+<div
+id="calendar"
+class="calendar-grid">
+</div>
 
 </div>
 

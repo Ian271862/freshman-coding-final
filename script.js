@@ -4,7 +4,7 @@ let tasks = [];
 
 const quotes = [
 "Great job!",
-"You’re crushing it!",
+"You're crushing it!",
 "Keep going!",
 "Momentum creates success.",
 "Nice work!",
@@ -19,7 +19,7 @@ const $ = id => document.getElementById(id);
 
 async function enableNotifications(){
 
-if(!("Notification" in window")){
+if(!("Notification" in window)){
 alert("Notifications not supported.");
 return;
 }

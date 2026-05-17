@@ -101,6 +101,11 @@ async function getWeatherTasks() {
 
         const data = await response.json();
 
+        if (!data.list) {
+          alert("Weather API error.");
+          return;
+        }
+
         const forecast = data.list[0];
 
         const weather =
@@ -309,7 +314,11 @@ function getCountdown(date) {
 
 function renderTasks() {
 
-  $("taskList").innerHTML =
+  const taskList = $("taskList");
+
+  if (!taskList) return;
+
+  taskList.innerHTML =
 
     tasks.map(task => `
 
@@ -421,9 +430,15 @@ function renderCalendar() {
 
   calendar.innerHTML = "";
 
-  $("monthTitle").textContent =
-    `${months[currentDate.getMonth()]}
-    ${currentDate.getFullYear()}`;
+  const title = $("monthTitle");
+
+  if (title) {
+
+    title.textContent =
+      `${months[currentDate.getMonth()]}
+      ${currentDate.getFullYear()}`;
+
+  }
 
   if (currentView === "month") {
 
@@ -581,7 +596,8 @@ ${t.text}
 
     calendar.innerHTML += `
 
-<div class="day">
+<div class="day"
+onclick="selectDate('${date}')">
 
 <div class="small-date">
 ${days[i]}
@@ -681,7 +697,7 @@ function openMonth(index) {
 function selectDate(date) {
 
   const dueDate =
-    document.getElementById("dueDate");
+    $("dueDate");
 
   if (!dueDate) return;
 
@@ -692,16 +708,6 @@ function selectDate(date) {
     top: 0,
     behavior: "smooth"
   });
-
-}
-
-function changeMonth(num) {
-
-  currentDate.setMonth(
-    currentDate.getMonth() + num
-  );
-
-  renderCalendar();
 
 }
 
@@ -743,5 +749,13 @@ function changeViewDate(direction) {
 
 }
 
-renderTasks();
-renderCalendar();
+/* =========================
+   START
+========================= */
+
+window.onload = () => {
+
+  renderTasks();
+  renderCalendar();
+
+};

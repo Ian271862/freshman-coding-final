@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smart Todo App</title>
 
 <style>
@@ -33,7 +33,6 @@ h1{
 text-align:center;
 margin-bottom:25px;
 font-size:36px;
-color:#222;
 }
 
 .add-row{
@@ -143,7 +142,7 @@ font-weight:bold;
 }
 
 .view-select{
-max-width:200px;
+max-width:220px;
 }
 
 .calendar-grid{
@@ -175,13 +174,14 @@ border-radius:8px;
 .day{
 background:white;
 border-radius:12px;
-min-height:110px;
+min-height:120px;
 padding:8px;
 border:1px solid #e1e1e1;
 cursor:pointer;
 transition:.2s;
 overflow:hidden;
-position:relative;
+display:flex;
+flex-direction:column;
 }
 
 .day:hover{
@@ -189,11 +189,10 @@ background:#f2f4ff;
 }
 
 .day-number{
-font-size:13px;
+font-size:12px;
 font-weight:bold;
+color:#666;
 margin-bottom:6px;
-color:#555;
-text-align:right;
 }
 
 .calendar-task{
@@ -224,8 +223,7 @@ background:#eef1ff;
 }
 
 .empty{
-background:transparent;
-border:none;
+visibility:hidden;
 }
 
 .badge{
@@ -241,6 +239,19 @@ margin-top:10px;
 .high{background:#ffe5bd;}
 .medium{background:#dbeaff;}
 .low{background:#daf7d4;}
+
+.repeat{
+margin-top:10px;
+font-size:13px;
+color:#4f46e5;
+font-weight:bold;
+}
+
+.week-label{
+font-size:14px;
+color:#555;
+font-weight:bold;
+}
 
 @media(max-width:800px){
 
@@ -289,6 +300,15 @@ placeholder="Task description"></textarea>
 <input
 id="dueDate"
 type="datetime-local">
+
+<select id="recurring">
+<option value="none">No Recurring</option>
+<option value="daily">Daily</option>
+<option value="weekly">Weekly</option>
+<option value="biweekly">Every Other Week</option>
+<option value="monthly">Monthly</option>
+<option value="lastThursday">Last Thursday of Month</option>
+</select>
 
 <div class="weather-buttons">
 
@@ -437,7 +457,7 @@ calendar.innerHTML += `
 onclick="selectDate('${date}')">
 
 <div class="day-number">
-${day}
+${month+1}/${day}
 </div>
 
 ${taskHTML}
@@ -454,21 +474,35 @@ else if(view === "week"){
 
 calendar.classList.add("week-view");
 
-monthTitle.textContent = "Week View";
+const weekNumber =
+Math.ceil(currentDate.getDate()/7);
+
+const weekNames = [
+"First","Second","Third",
+"Fourth","Fifth"
+];
+
+monthTitle.innerHTML = `
+${monthNames[month]} ${year}
+<br>
+<span class="week-label">
+${weekNames[weekNumber-1]} Week of ${monthNames[month]}
+</span>
+`;
 
 for(let i=0;i<7;i++){
 
-const date =
+const start =
 new Date(currentDate);
 
-date.setDate(
+start.setDate(
 currentDate.getDate()
 -currentDate.getDay()
 +i
 );
 
 const dateString =
-date.toISOString().split("T")[0];
+start.toISOString().split("T")[0];
 
 const taskHTML =
 tasks
@@ -486,6 +520,8 @@ onclick="selectDate('${dateString}')">
 
 <div class="day-number">
 ${dayNames[i]}
+<br>
+${start.getMonth()+1}/${start.getDate()}
 </div>
 
 ${taskHTML}
@@ -638,6 +674,9 @@ document.getElementById("priority");
 const dueDate =
 document.getElementById("dueDate");
 
+const recurring =
+document.getElementById("recurring");
+
 if(taskInput.value.trim()===""){
 
 alert("Please enter a task.");
@@ -650,12 +689,14 @@ id:Date.now(),
 name:taskInput.value,
 description:descriptionInput.value,
 priority:priority.value,
-dueDate:dueDate.value
+dueDate:dueDate.value,
+recurring:recurring.value
 });
 
 taskInput.value="";
 descriptionInput.value="";
 dueDate.value="";
+recurring.value="none";
 
 renderTasks();
 renderCalendar();
@@ -724,7 +765,11 @@ taskList.innerHTML += `
 ${task.priority.toUpperCase()}
 </span>
 
-<br><br>
+<div class="repeat">
+🔁 ${task.recurring}
+</div>
+
+<br>
 
 <strong>Due:</strong>
 ${task.dueDate || "No due date"}

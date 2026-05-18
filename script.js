@@ -266,9 +266,9 @@ background:white;
 padding:25px;
 border-radius:20px;
 width:90%;
-max-width:420px;
+max-width:450px;
 display:grid;
-gap:12px;
+gap:14px;
 ">
 
 <h2>Edit Task</h2>
@@ -280,6 +280,7 @@ style="
 padding:12px;
 border-radius:10px;
 border:1px solid #ccc;
+font-size:16px;
 ">
 
 <textarea
@@ -289,7 +290,12 @@ padding:12px;
 border-radius:10px;
 border:1px solid #ccc;
 height:100px;
+font-size:15px;
 ">${task.description}</textarea>
+
+<label style="font-weight:bold;">
+Choose Due Date & Time
+</label>
 
 <input
 id="editDate"
@@ -299,11 +305,14 @@ style="
 padding:12px;
 border-radius:10px;
 border:1px solid #ccc;
+font-size:16px;
+cursor:pointer;
 ">
 
 <div style="
 display:flex;
 gap:10px;
+margin-top:10px;
 ">
 
 <button
@@ -315,6 +324,7 @@ background:#4f46e5;
 color:white;
 border:none;
 border-radius:12px;
+font-weight:bold;
 cursor:pointer;
 ">
 
@@ -331,6 +341,7 @@ background:#ddd;
 color:black;
 border:none;
 border-radius:12px;
+font-weight:bold;
 cursor:pointer;
 ">
 

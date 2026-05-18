@@ -246,17 +246,32 @@ tasks.find(t => t.id === id);
 if(!task) return;
 
 const newText =
-prompt("Edit task name:", task.text);
+prompt(
+"Edit task name:",
+task.text
+);
 
 if(newText === null) return;
 
 const newDescription =
-prompt("Edit description:", task.description);
+prompt(
+"Edit description:",
+task.description
+);
 
 if(newDescription === null) return;
 
+const newDate =
+prompt(
+"Edit due date and time (YYYY-MM-DDTHH:MM)",
+task.dueDate || ""
+);
+
+if(newDate === null) return;
+
 task.text = newText;
 task.description = newDescription;
+task.dueDate = newDate;
 
 renderTasks();
 renderCalendar();
@@ -332,7 +347,80 @@ setTimeout(
 function renderTasks(){
 
 $("taskList").innerHTML =
-tasks.map(task => `
+tasks.map(task => {
+
+let countdownHTML = "";
+
+if(task.dueDate){
+
+const due =
+new Date(task.dueDate);
+
+const now =
+new Date();
+
+const diff =
+due - now;
+
+const absDiff =
+Math.abs(diff);
+
+const days =
+Math.floor(absDiff / (1000*60*60*24));
+
+const hours =
+Math.floor(
+(absDiff % (1000*60*60*24))
+/
+(1000*60*60)
+);
+
+const minutes =
+Math.floor(
+(absDiff % (1000*60*60))
+/
+(1000*60)
+);
+
+if(diff > 0){
+
+countdownHTML = `
+
+<div style="
+margin-top:10px;
+font-weight:bold;
+color:#2563eb;
+">
+
+⏳ Due In:
+${days}d ${hours}h ${minutes}m
+
+</div>
+
+`;
+
+}else{
+
+countdownHTML = `
+
+<div style="
+margin-top:10px;
+font-weight:bold;
+color:#dc2626;
+">
+
+⚠️ Overdue By:
+${days}d ${hours}h ${minutes}m
+
+</div>
+
+`;
+
+}
+
+}
+
+return `
 
 <div class="task ${task.done ? "done" : ""}">
 
@@ -355,6 +443,8 @@ ${task.dueDate ?
 ${new Date(task.dueDate).toLocaleString()}`
 : ""}
 
+${countdownHTML}
+
 </div>
 
 <div class="task-buttons">
@@ -375,7 +465,9 @@ Delete
 
 </div>
 
-`).join("");
+`;
+
+}).join("");
 
 }
 
@@ -724,6 +816,16 @@ behavior:"smooth"
 });
 
 }
+
+/* =========================
+   AUTO UPDATE TIMERS
+========================= */
+
+setInterval(() => {
+
+renderTasks();
+
+}, 60000);
 
 /* =========================
    PAGE LOAD

@@ -2,6 +2,79 @@ const WEATHER_API_KEY = "5e874ea65109f8afe947fcfed3265b4d";
 
 let tasks = [];
 
+/* =========================
+   HOLIDAYS
+========================= */
+
+const holidays = [
+
+{ name:"New Year's Day 🎉", date:"2026-01-01" },
+{ name:"Martin Luther King Jr. Day", date:"2026-01-19" },
+{ name:"Valentine's Day ❤️", date:"2026-02-14" },
+{ name:"Presidents' Day", date:"2026-02-16" },
+{ name:"St. Patrick's Day ☘️", date:"2026-03-17" },
+{ name:"Easter ✝️", date:"2026-04-05" },
+{ name:"Mother's Day 💐", date:"2026-05-10" },
+{ name:"Memorial Day", date:"2026-05-25" },
+{ name:"Father's Day", date:"2026-06-21" },
+{ name:"Independence Day 🇺🇸", date:"2026-07-04" },
+{ name:"Labor Day", date:"2026-09-07" },
+{ name:"Halloween 🎃", date:"2026-10-31" },
+{ name:"Veterans Day", date:"2026-11-11" },
+{ name:"Thanksgiving 🦃", date:"2026-11-26" },
+{ name:"Christmas Eve 🎄", date:"2026-12-24" },
+{ name:"Christmas 🎄", date:"2026-12-25" },
+{ name:"New Year's Eve 🎆", date:"2026-12-31" }
+
+];
+
+/* =========================
+   CATHOLIC FEAST DAYS
+========================= */
+
+const catholicFeastDays = [
+
+{ name:"Mary, Mother of God ✝️", date:"2026-01-01" },
+{ name:"Epiphany ✨", date:"2026-01-06" },
+{ name:"Baptism of the Lord", date:"2026-01-11" },
+{ name:"Presentation of the Lord", date:"2026-02-02" },
+{ name:"Saint Valentine ❤️", date:"2026-02-14" },
+{ name:"Saint Patrick ☘️", date:"2026-03-17" },
+{ name:"Saint Joseph", date:"2026-03-19" },
+{ name:"Palm Sunday 🌿", date:"2026-03-29" },
+{ name:"Holy Thursday ✝️", date:"2026-04-02" },
+{ name:"Good Friday ✝️", date:"2026-04-03" },
+{ name:"Easter Sunday ✝️", date:"2026-04-05" },
+{ name:"Divine Mercy Sunday", date:"2026-04-12" },
+{ name:"Saint Mark", date:"2026-04-25" },
+{ name:"Saint Joseph the Worker", date:"2026-05-01" },
+{ name:"Ascension of Jesus ✨", date:"2026-05-14" },
+{ name:"Pentecost 🔥", date:"2026-05-24" },
+{ name:"Holy Trinity Sunday", date:"2026-05-31" },
+{ name:"Corpus Christi", date:"2026-06-04" },
+{ name:"Sacred Heart of Jesus ❤️", date:"2026-06-12" },
+{ name:"Saint Anthony", date:"2026-06-13" },
+{ name:"Saints Peter and Paul", date:"2026-06-29" },
+{ name:"Our Lady of Mount Carmel", date:"2026-07-16" },
+{ name:"Transfiguration of the Lord ✨", date:"2026-08-06" },
+{ name:"Assumption of Mary 👑", date:"2026-08-15" },
+{ name:"Saint Augustine", date:"2026-08-28" },
+{ name:"Nativity of Mary 🎂", date:"2026-09-08" },
+{ name:"Holy Cross Day ✝️", date:"2026-09-14" },
+{ name:"Guardian Angels 👼", date:"2026-10-02" },
+{ name:"Saint Francis of Assisi 🕊️", date:"2026-10-04" },
+{ name:"Saint Luke", date:"2026-10-18" },
+{ name:"All Saints Day ✨", date:"2026-11-01" },
+{ name:"All Souls Day 🕯️", date:"2026-11-02" },
+{ name:"Saint Martin of Tours", date:"2026-11-11" },
+{ name:"Christ the King 👑", date:"2026-11-22" },
+{ name:"Immaculate Conception ✨", date:"2026-12-08" },
+{ name:"Our Lady of Guadalupe 🌹", date:"2026-12-12" },
+{ name:"Christmas ✝️🎄", date:"2026-12-25" },
+{ name:"Holy Family Sunday", date:"2026-12-27" }
+
+];
+
 const $ = id => document.getElementById(id);
 
 const months = [
@@ -681,6 +754,50 @@ ${t.text}
 )
 .join("");
 
+const holidayHTML =
+holidays
+.filter(
+h => h.date === date
+)
+.map(
+h => `
+<div style="
+background:#ef4444;
+color:white;
+padding:5px 7px;
+border-radius:7px;
+font-size:11px;
+margin-top:5px;
+font-weight:bold;
+">
+${h.name}
+</div>
+`
+)
+.join("");
+
+const catholicHTML =
+catholicFeastDays
+.filter(
+h => h.date === date
+)
+.map(
+h => `
+<div style="
+background:#7c3aed;
+color:white;
+padding:5px 7px;
+border-radius:7px;
+font-size:11px;
+margin-top:5px;
+font-weight:bold;
+">
+${h.name}
+</div>
+`
+)
+.join("");
+
 calendar.innerHTML = `
 
 <div class="day"
@@ -691,6 +808,8 @@ onclick="selectDate('${date}')">
 ${date}
 </div>
 
+${holidayHTML}
+${catholicHTML}
 ${taskHTML || "Click to add tasks"}
 
 </div>
@@ -764,6 +883,50 @@ ${t.text}
 )
 .join("");
 
+const holidayHTML =
+holidays
+.filter(
+h => h.date === date
+)
+.map(
+h => `
+<div style="
+background:#ef4444;
+color:white;
+padding:5px 7px;
+border-radius:7px;
+font-size:11px;
+margin-top:5px;
+font-weight:bold;
+">
+${h.name}
+</div>
+`
+)
+.join("");
+
+const catholicHTML =
+catholicFeastDays
+.filter(
+h => h.date === date
+)
+.map(
+h => `
+<div style="
+background:#7c3aed;
+color:white;
+padding:5px 7px;
+border-radius:7px;
+font-size:11px;
+margin-top:5px;
+font-weight:bold;
+">
+${h.name}
+</div>
+`
+)
+.join("");
+
 calendar.innerHTML += `
 
 <div class="day"
@@ -773,6 +936,8 @@ onclick="selectDate('${date}')">
 ${current.getDate()}
 </div>
 
+${holidayHTML}
+${catholicHTML}
 ${taskHTML || "<small>Click to add</small>"}
 
 </div>
@@ -839,6 +1004,50 @@ ${t.text}
 )
 .join("");
 
+const holidayHTML =
+holidays
+.filter(
+h => h.date === date
+)
+.map(
+h => `
+<div style="
+background:#ef4444;
+color:white;
+padding:5px 7px;
+border-radius:7px;
+font-size:11px;
+margin-top:5px;
+font-weight:bold;
+">
+${h.name}
+</div>
+`
+)
+.join("");
+
+const catholicHTML =
+catholicFeastDays
+.filter(
+h => h.date === date
+)
+.map(
+h => `
+<div style="
+background:#7c3aed;
+color:white;
+padding:5px 7px;
+border-radius:7px;
+font-size:11px;
+margin-top:5px;
+font-weight:bold;
+">
+${h.name}
+</div>
+`
+)
+.join("");
+
 calendar.innerHTML += `
 
 <div class="day"
@@ -848,6 +1057,8 @@ onclick="selectDate('${date}')">
 ${day}
 </div>
 
+${holidayHTML}
+${catholicHTML}
 ${taskHTML || "<small>Click to add</small>"}
 
 </div>

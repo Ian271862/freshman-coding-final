@@ -245,36 +245,134 @@ tasks.find(t => t.id === id);
 
 if(!task) return;
 
-const newText =
-prompt(
-"Edit task name:",
-task.text
-);
+const overlay =
+document.createElement("div");
 
-if(newText === null) return;
+overlay.style.position = "fixed";
+overlay.style.top = "0";
+overlay.style.left = "0";
+overlay.style.width = "100%";
+overlay.style.height = "100%";
+overlay.style.background = "rgba(0,0,0,0.5)";
+overlay.style.display = "flex";
+overlay.style.justifyContent = "center";
+overlay.style.alignItems = "center";
+overlay.style.zIndex = "9999";
 
-const newDescription =
-prompt(
-"Edit description:",
-task.description
-);
+overlay.innerHTML = `
 
-if(newDescription === null) return;
+<div style="
+background:white;
+padding:25px;
+border-radius:20px;
+width:90%;
+max-width:420px;
+display:grid;
+gap:12px;
+">
 
-const newDate =
-prompt(
-"Edit due date and time (YYYY-MM-DDTHH:MM)",
-task.dueDate || ""
-);
+<h2>Edit Task</h2>
 
-if(newDate === null) return;
+<input
+id="editTitle"
+value="${task.text}"
+style="
+padding:12px;
+border-radius:10px;
+border:1px solid #ccc;
+">
 
-task.text = newText;
-task.description = newDescription;
-task.dueDate = newDate;
+<textarea
+id="editDescription"
+style="
+padding:12px;
+border-radius:10px;
+border:1px solid #ccc;
+height:100px;
+">${task.description}</textarea>
+
+<input
+id="editDate"
+type="datetime-local"
+value="${task.dueDate}"
+style="
+padding:12px;
+border-radius:10px;
+border:1px solid #ccc;
+">
+
+<div style="
+display:flex;
+gap:10px;
+">
+
+<button
+id="saveEdit"
+style="
+flex:1;
+padding:12px;
+background:#4f46e5;
+color:white;
+border:none;
+border-radius:12px;
+cursor:pointer;
+">
+
+Save
+
+</button>
+
+<button
+id="cancelEdit"
+style="
+flex:1;
+padding:12px;
+background:#ddd;
+color:black;
+border:none;
+border-radius:12px;
+cursor:pointer;
+">
+
+Cancel
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+document.body.appendChild(overlay);
+
+document
+.getElementById("saveEdit")
+.onclick = () => {
+
+task.text =
+document.getElementById("editTitle").value;
+
+task.description =
+document.getElementById("editDescription").value;
+
+task.dueDate =
+document.getElementById("editDate").value;
+
+document.body.removeChild(overlay);
 
 renderTasks();
 renderCalendar();
+
+};
+
+document
+.getElementById("cancelEdit")
+.onclick = () => {
+
+document.body.removeChild(overlay);
+
+};
 
 }
 

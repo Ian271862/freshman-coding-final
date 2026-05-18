@@ -20,6 +20,8 @@ let currentDate = new Date();
 
 let viewMode = "month";
 
+let editingTaskId = null;
+
 const quotes = [
 "Great job!",
 "You're crushing it!",
@@ -571,6 +573,10 @@ renderCalendar();
 
 }
 
+/* =========================
+   EDIT TASK SYSTEM
+========================= */
+
 function editTask(id){
 
 const task =
@@ -578,36 +584,66 @@ tasks.find(t => t.id === id);
 
 if(!task) return;
 
-const newTitle =
-prompt(
-"Edit task name:",
-task.text
-);
+editingTaskId = id;
 
-if(newTitle === null) return;
+$("editTaskInput").value =
+task.text || "";
 
-const newDescription =
-prompt(
-"Edit description:",
-task.description
-);
+$("editDescriptionInput").value =
+task.description || "";
 
-if(newDescription === null) return;
+$("editPriority").value =
+task.priority || "medium";
 
-const newDate =
-prompt(
-"Edit due date and time (YYYY-MM-DDTHH:MM)",
-task.dueDate
-);
+$("editDueDate").value =
+task.dueDate || "";
 
-if(newDate === null) return;
+$("editModal").style.display =
+"flex";
 
-task.text = newTitle;
-task.description = newDescription;
-task.dueDate = newDate;
+}
+
+function saveTaskEdit(){
+
+const task =
+tasks.find(t => t.id === editingTaskId);
+
+if(!task) return;
+
+const updatedTitle =
+$("editTaskInput").value.trim();
+
+if(!updatedTitle){
+
+alert("Please enter a task name.");
+return;
+
+}
+
+task.text =
+updatedTitle;
+
+task.description =
+$("editDescriptionInput").value;
+
+task.priority =
+$("editPriority").value;
+
+task.dueDate =
+$("editDueDate").value;
+
+$("editModal").style.display =
+"none";
 
 renderTasks();
 renderCalendar();
+
+}
+
+function closeEditModal(){
+
+$("editModal").style.display =
+"none";
 
 }
 
@@ -882,12 +918,6 @@ const d = currentDate;
 const date =
 `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 
-const holidays =
-getDynamicHolidays(d.getFullYear());
-
-const catholicFeastDays =
-getCatholicFeastDays(d.getFullYear());
-
 $("monthTitle").textContent =
 `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 
@@ -907,50 +937,6 @@ ${t.text}
 )
 .join("");
 
-const holidayHTML =
-holidays
-.filter(
-h => h.date === date
-)
-.map(
-h => `
-<div style="
-background:#ef4444;
-color:white;
-padding:5px 7px;
-border-radius:7px;
-font-size:11px;
-margin-top:5px;
-font-weight:bold;
-">
-${h.name}
-</div>
-`
-)
-.join("");
-
-const catholicHTML =
-catholicFeastDays
-.filter(
-h => h.date === date
-)
-.map(
-h => `
-<div style="
-background:#7c3aed;
-color:white;
-padding:5px 7px;
-border-radius:7px;
-font-size:11px;
-margin-top:5px;
-font-weight:bold;
-">
-${h.name}
-</div>
-`
-)
-.join("");
-
 calendar.innerHTML = `
 
 <div class="day"
@@ -961,8 +947,6 @@ onclick="selectDate('${date}')">
 ${date}
 </div>
 
-${holidayHTML}
-${catholicHTML}
 ${taskHTML || "Click to add tasks"}
 
 </div>
@@ -986,19 +970,8 @@ start.setDate(
 temp.getDate() - temp.getDay()
 );
 
-const week =
-Math.ceil(start.getDate()/7);
-
-const labels = [
-"First",
-"Second",
-"Third",
-"Fourth",
-"Fifth"
-];
-
 $("monthTitle").textContent =
-`${labels[week-1]} Week of ${months[start.getMonth()]}`;
+`Week of ${months[start.getMonth()]}`;
 
 calendar.innerHTML =
 days.map(d =>
@@ -1012,12 +985,6 @@ const current = new Date(start);
 current.setDate(
 start.getDate()+i
 );
-
-const holidays =
-getDynamicHolidays(current.getFullYear());
-
-const catholicFeastDays =
-getCatholicFeastDays(current.getFullYear());
 
 const date =
 `${current.getFullYear()}-${String(current.getMonth()+1).padStart(2,"0")}-${String(current.getDate()).padStart(2,"0")}`;
@@ -1038,50 +1005,6 @@ ${t.text}
 )
 .join("");
 
-const holidayHTML =
-holidays
-.filter(
-h => h.date === date
-)
-.map(
-h => `
-<div style="
-background:#ef4444;
-color:white;
-padding:5px 7px;
-border-radius:7px;
-font-size:11px;
-margin-top:5px;
-font-weight:bold;
-">
-${h.name}
-</div>
-`
-)
-.join("");
-
-const catholicHTML =
-catholicFeastDays
-.filter(
-h => h.date === date
-)
-.map(
-h => `
-<div style="
-background:#7c3aed;
-color:white;
-padding:5px 7px;
-border-radius:7px;
-font-size:11px;
-margin-top:5px;
-font-weight:bold;
-">
-${h.name}
-</div>
-`
-)
-.join("");
-
 calendar.innerHTML += `
 
 <div class="day"
@@ -1091,8 +1014,6 @@ onclick="selectDate('${date}')">
 ${current.getDate()}
 </div>
 
-${holidayHTML}
-${catholicHTML}
 ${taskHTML || "<small>Click to add</small>"}
 
 </div>
@@ -1115,12 +1036,6 @@ currentDate.getMonth();
 
 const year =
 currentDate.getFullYear();
-
-const holidays =
-getDynamicHolidays(year);
-
-const catholicFeastDays =
-getCatholicFeastDays(year);
 
 $("monthTitle").textContent =
 `${months[month]} ${year}`;
@@ -1161,50 +1076,6 @@ ${t.text}
 )
 .join("");
 
-const holidayHTML =
-holidays
-.filter(
-h => h.date === date
-)
-.map(
-h => `
-<div style="
-background:#ef4444;
-color:white;
-padding:5px 7px;
-border-radius:7px;
-font-size:11px;
-margin-top:5px;
-font-weight:bold;
-">
-${h.name}
-</div>
-`
-)
-.join("");
-
-const catholicHTML =
-catholicFeastDays
-.filter(
-h => h.date === date
-)
-.map(
-h => `
-<div style="
-background:#7c3aed;
-color:white;
-padding:5px 7px;
-border-radius:7px;
-font-size:11px;
-margin-top:5px;
-font-weight:bold;
-">
-${h.name}
-</div>
-`
-)
-.join("");
-
 calendar.innerHTML += `
 
 <div class="day"
@@ -1214,8 +1085,6 @@ onclick="selectDate('${date}')">
 ${day}
 </div>
 
-${holidayHTML}
-${catholicHTML}
 ${taskHTML || "<small>Click to add</small>"}
 
 </div>

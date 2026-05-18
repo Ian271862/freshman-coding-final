@@ -374,7 +374,7 @@ new Date(year,month-1,day)
 
 async function enableNotifications(){
 
-if(!("Notification" in window")){
+if(!("Notification" in window)){
 alert("Notifications are not supported.");
 return;
 }

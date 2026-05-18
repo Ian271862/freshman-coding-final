@@ -1,26 +1,26 @@
-const WEATHER_API_KEY = "5e874ea65109f8afe947fcfed3265b4d"; // Stores your OpenWeather API key
+const WEATHER_API_KEY = "5e874ea65109f8afe947fcfed3265b4d";
 
-let tasks = []; // Stores all tasks in an array
+let tasks = [];
 
-const $ = id => document.getElementById(id); // Shorter way to get HTML elements by ID
+const $ = id => document.getElementById(id);
 
 const months = [
 "January","February","March",
 "April","May","June",
 "July","August","September",
 "October","November","December"
-]; // Month names for the calendar
+];
 
 const days = [
 "Sun","Mon","Tue",
 "Wed","Thu","Fri","Sat"
-]; // Weekday names for the calendar
+];
 
-let currentDate = new Date(); // Keeps track of the current date being viewed
+let currentDate = new Date();
 
-let viewMode = "month"; // Stores the current calendar view type
+let viewMode = "month";
 
-let editingTaskId = null; // Stores the task ID currently being edited
+let editingTaskId = null;
 
 const quotes = [
 "Great job!",
@@ -33,7 +33,7 @@ const quotes = [
 "You did it!",
 "Progress matters.",
 "Excellent work!"
-]; // Random motivational quotes shown after completing tasks
+];
 
 /* =========================
    AUTO HOLIDAYS + CATHOLIC DAYS
@@ -90,37 +90,37 @@ date:`${year}-12-31`
 
 {
 name:"Martin Luther King Jr. Day",
-date:getNthWeekdayOfMonth(year,1,0,3) // Gets the 3rd Monday of January
+date:getNthWeekdayOfMonth(year,1,0,3)
 },
 
 {
 name:"Presidents' Day",
-date:getNthWeekdayOfMonth(year,1,1,3) // Gets the 3rd Monday of February
+date:getNthWeekdayOfMonth(year,1,1,3)
 },
 
 {
 name:"Mother's Day 💐",
-date:getNthWeekdayOfMonth(year,0,4,2) // Gets the 2nd Sunday of May
+date:getNthWeekdayOfMonth(year,0,4,2)
 },
 
 {
 name:"Father's Day",
-date:getNthWeekdayOfMonth(year,0,5,3) // Gets the 3rd Sunday of June
+date:getNthWeekdayOfMonth(year,0,5,3)
 },
 
 {
 name:"Labor Day",
-date:getNthWeekdayOfMonth(year,1,8,1) // Gets the 1st Monday of September
+date:getNthWeekdayOfMonth(year,1,8,1)
 },
 
 {
 name:"Memorial Day",
-date:getLastWeekdayOfMonth(year,1,4) // Gets the last Monday of May
+date:getLastWeekdayOfMonth(year,1,4)
 },
 
 {
 name:"Thanksgiving 🦃",
-date:getNthWeekdayOfMonth(year,4,10,4) // Gets the 4th Thursday of November
+date:getNthWeekdayOfMonth(year,4,10,4)
 }
 
 ];
@@ -130,7 +130,7 @@ date:getNthWeekdayOfMonth(year,4,10,4) // Gets the 4th Thursday of November
 function getCatholicFeastDays(year){
 
 const easter =
-getEaster(year); // Calculates Easter because many feast days depend on it
+getEaster(year);
 
 return [
 
@@ -161,17 +161,17 @@ date:`${year}-03-19`
 
 {
 name:"Palm Sunday 🌿",
-date:addDays(easter,-7) // Gets the date 7 days before Easter
+date:addDays(easter,-7)
 },
 
 {
 name:"Holy Thursday ✝️",
-date:addDays(easter,-3) // Gets the date 3 days before Easter
+date:addDays(easter,-3)
 },
 
 {
 name:"Good Friday ✝️",
-date:addDays(easter,-2) // Gets the date 2 days before Easter
+date:addDays(easter,-2)
 },
 
 {
@@ -181,7 +181,7 @@ date:easter
 
 {
 name:"Divine Mercy Sunday",
-date:addDays(easter,7) // Gets the date 7 days after Easter
+date:addDays(easter,7)
 },
 
 {
@@ -268,18 +268,18 @@ return `${date.getFullYear()}-${String(
 date.getMonth()+1
 ).padStart(2,"0")}-${String(
 date.getDate()
-).padStart(2,"0")}`; // Converts dates into YYYY-MM-DD format
+).padStart(2,"0")}`;
 
 }
 
 function addDays(baseDate,days){
 
 const date =
-new Date(baseDate); // Makes a copy of the original date
+new Date(baseDate);
 
 date.setDate(
 date.getDate() + days
-); // Adds or subtracts days from the date
+);
 
 return formatDate(date);
 
@@ -293,15 +293,15 @@ nth
 ){
 
 const first =
-new Date(year,month,1); // Gets the first day of the month
+new Date(year,month,1);
 
 let day =
-first.getDay(); // Gets the weekday number of the first day
+first.getDay();
 
 let offset =
-(7 + weekday - day) % 7; // Calculates the distance to the target weekday
+(7 + weekday - day) % 7;
 
-offset += (nth - 1) * 7; // Moves to the correct week number
+offset += (nth - 1) * 7;
 
 const result =
 new Date(year,month,1 + offset);
@@ -317,13 +317,13 @@ month
 ){
 
 const last =
-new Date(year,month+1,0); // Gets the last day of the month
+new Date(year,month+1,0);
 
 while(last.getDay() !== weekday){
 
 last.setDate(
 last.getDate() - 1
-); // Moves backward until the weekday matches
+);
 
 }
 
@@ -334,7 +334,7 @@ return formatDate(last);
 function getEaster(year){
 
 const f =
-Math.floor; // Shortens Math.floor for easier use
+Math.floor;
 
 const G =
 year % 19;
@@ -357,10 +357,10 @@ const L =
 I - J;
 
 const month =
-3 + f((L + 40) / 44); // Calculates Easter's month
+3 + f((L + 40) / 44);
 
 const day =
-L + 28 - 31 * f(month / 4); // Calculates Easter's day
+L + 28 - 31 * f(month / 4);
 
 return formatDate(
 new Date(year,month-1,day)
@@ -374,13 +374,13 @@ new Date(year,month-1,day)
 
 async function enableNotifications(){
 
-if(!("Notification" in window)){ // Checks if notifications are supported
+if(!("Notification" in window")){
 alert("Notifications are not supported.");
 return;
 }
 
 const permission =
-await Notification.requestPermission(); // Asks the user for notification permission
+await Notification.requestPermission();
 
 if(permission === "granted"){
 
@@ -389,7 +389,7 @@ new Notification(
 {
 body:"Smart reminders are active."
 }
-); // Sends a test notification
+);
 
 }
 
@@ -401,7 +401,7 @@ body:"Smart reminders are active."
 
 async function getWeatherTasks(){
 
-if(!navigator.geolocation){ // Checks if geolocation is supported
+if(!navigator.geolocation){
 
 alert("Geolocation is not supported.");
 return;
@@ -412,19 +412,19 @@ navigator.geolocation.getCurrentPosition(
 
 async position => {
 
-const lat = position.coords.latitude; // Gets the user's latitude
-const lon = position.coords.longitude; // Gets the user's longitude
+const lat = position.coords.latitude;
+const lon = position.coords.longitude;
 
 try{
 
 const response =
 await fetch(
 `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=imperial`
-); // Requests weather data from OpenWeather
+);
 
-const data = await response.json(); // Converts the response into JSON
+const data = await response.json();
 
-const forecast = data.list?.[0]; // Gets the first forecast result
+const forecast = data.list?.[0];
 
 if(!forecast){
 
@@ -434,10 +434,10 @@ return;
 }
 
 const weather =
-forecast.weather?.[0]?.main?.toLowerCase() || ""; // Gets the weather condition
+forecast.weather?.[0]?.main?.toLowerCase() || "";
 
 const temp =
-forecast.main?.temp || 0; // Gets the current temperature
+forecast.main?.temp || 0;
 
 if(weather.includes("rain")){
 
@@ -475,14 +475,14 @@ createWeatherTask(
 
 }
 
-renderTasks(); // Refreshes the task list
-renderCalendar(); // Refreshes the calendar
+renderTasks();
+renderCalendar();
 
 alert("Weather smart tasks updated.");
 
 }catch(error){
 
-console.error(error); // Shows errors in the browser console
+console.error(error);
 
 alert("Could not load weather.");
 
@@ -507,13 +507,13 @@ tasks.some(
 t =>
 t.text === title &&
 !t.done
-); // Checks if the same unfinished task already exists
+);
 
 if(exists) return;
 
 tasks.push({
 
-id:Date.now() + Math.random(), // Creates a unique task ID
+id:Date.now() + Math.random(),
 
 text:title,
 
@@ -524,7 +524,7 @@ priority:"medium",
 dueDate:
 new Date()
 .toISOString()
-.slice(0,16), // Creates today's date and time
+.slice(0,16),
 
 done:false
 
@@ -539,7 +539,7 @@ done:false
 function addTask(){
 
 const text =
-$("taskInput").value.trim(); // Removes extra spaces from the task text
+$("taskInput").value.trim();
 
 if(!text){
 
@@ -550,7 +550,7 @@ return;
 
 tasks.push({
 
-id:Date.now(), // Creates a unique ID using the current time
+id:Date.now(),
 
 text:text,
 
@@ -564,11 +564,762 @@ done:false
 
 });
 
-$("taskInput").value = ""; // Clears the task input
-$("descriptionInput").value = ""; // Clears the description input
-$("dueDate").value = ""; // Clears the due date input
+$("taskInput").value = "";
+$("descriptionInput").value = "";
+$("dueDate").value = "";
 
-renderTasks(); // Updates the task list
-renderCalendar(); // Updates the calendar
+renderTasks();
+renderCalendar();
 
 }
+
+/* =========================
+   EDIT TASK SYSTEM
+========================= */
+
+function editTask(id){
+
+const task =
+tasks.find(t => t.id === id);
+
+if(!task) return;
+
+editingTaskId = id;
+
+$("editTaskInput").value =
+task.text || "";
+
+$("editDescriptionInput").value =
+task.description || "";
+
+$("editPriority").value =
+task.priority || "medium";
+
+$("editDueDate").value =
+task.dueDate || "";
+
+$("editModal").style.display =
+"flex";
+
+}
+
+function saveTaskEdit(){
+
+const task =
+tasks.find(t => t.id === editingTaskId);
+
+if(!task) return;
+
+const updatedTitle =
+$("editTaskInput").value.trim();
+
+if(!updatedTitle){
+
+alert("Please enter a task name.");
+return;
+
+}
+
+task.text =
+updatedTitle;
+
+task.description =
+$("editDescriptionInput").value;
+
+task.priority =
+$("editPriority").value;
+
+task.dueDate =
+$("editDueDate").value;
+
+$("editModal").style.display =
+"none";
+
+renderTasks();
+renderCalendar();
+
+}
+
+function closeEditModal(){
+
+$("editModal").style.display =
+"none";
+
+}
+
+function toggleTask(id){
+
+const task =
+tasks.find(
+t => t.id === id
+);
+
+if(task){
+
+task.done = !task.done;
+
+showPopup();
+
+renderTasks();
+renderCalendar();
+
+}
+
+}
+
+function deleteTask(id){
+
+tasks =
+tasks.filter(
+t => t.id !== id
+);
+
+renderTasks();
+renderCalendar();
+
+}
+
+function showPopup(){
+
+const popup =
+document.createElement("div");
+
+popup.className = "popup";
+
+popup.innerHTML = `
+
+<h3>Task Completed 🎉</h3>
+
+<br>
+
+<p>
+${quotes[
+Math.floor(
+Math.random() * quotes.length
+)
+]}
+</p>
+
+`;
+
+document.body.appendChild(
+popup
+);
+
+setTimeout(
+() => popup.remove(),
+3000
+);
+
+}
+
+function renderTasks(){
+
+$("taskList").innerHTML =
+tasks.map(task => {
+
+let countdownHTML = "";
+
+if(task.dueDate){
+
+const due =
+new Date(task.dueDate);
+
+const now =
+new Date();
+
+const diff =
+due - now;
+
+const absDiff =
+Math.abs(diff);
+
+const days =
+Math.floor(absDiff / (1000*60*60*24));
+
+const hours =
+Math.floor(
+(absDiff % (1000*60*60*24))
+/
+(1000*60*60)
+);
+
+const minutes =
+Math.floor(
+(absDiff % (1000*60*60))
+/
+(1000*60)
+);
+
+if(diff > 0){
+
+countdownHTML = `
+
+<div style="
+margin-top:10px;
+font-weight:bold;
+color:#2563eb;
+">
+
+⏳ Due In:
+${days}d ${hours}h ${minutes}m
+
+</div>
+
+`;
+
+}else{
+
+countdownHTML = `
+
+<div style="
+margin-top:10px;
+font-weight:bold;
+color:#dc2626;
+">
+
+⚠️ Overdue By:
+${days}d ${hours}h ${minutes}m
+
+</div>
+
+`;
+
+}
+
+}
+
+return `
+
+<div class="task ${task.done ? "done" : ""}">
+
+<div class="task-left">
+
+<h3>${task.text}</h3>
+
+<div class="description">
+${task.description}
+</div>
+
+<span class="badge ${task.priority}">
+${task.priority.toUpperCase()}
+</span>
+
+<br><br>
+
+${task.dueDate ?
+`<strong>Due:</strong>
+${new Date(task.dueDate).toLocaleString()}`
+: ""}
+
+${countdownHTML}
+
+</div>
+
+<div class="task-buttons">
+
+<button onclick="toggleTask(${task.id})">
+${task.done ? "Undo" : "Done"}
+</button>
+
+<button onclick="editTask(${task.id})">
+Edit
+</button>
+
+<button onclick="deleteTask(${task.id})">
+Delete
+</button>
+
+</div>
+
+</div>
+
+`;
+
+}).join("");
+
+}
+
+/* =========================
+   CALENDAR
+========================= */
+
+function setViewMode(mode){
+
+viewMode = mode;
+
+renderCalendar();
+
+}
+
+function changeView(num){
+
+if(viewMode === "day"){
+currentDate.setDate(
+currentDate.getDate() + num
+);
+}
+
+if(viewMode === "week"){
+currentDate.setDate(
+currentDate.getDate() + (num * 7)
+);
+}
+
+if(viewMode === "month"){
+currentDate.setMonth(
+currentDate.getMonth() + num
+);
+}
+
+if(viewMode === "year"){
+currentDate.setFullYear(
+currentDate.getFullYear() + num
+);
+}
+
+renderCalendar();
+
+}
+
+function renderCalendar(){
+
+const calendar = $("calendar");
+
+calendar.innerHTML = "";
+
+if(viewMode === "day"){
+renderDayView();
+}
+
+if(viewMode === "week"){
+renderWeekView();
+}
+
+if(viewMode === "month"){
+renderMonthView();
+}
+
+if(viewMode === "year"){
+renderYearView();
+}
+
+}
+
+function renderDayView(){
+
+const calendar = $("calendar");
+
+calendar.style.gridTemplateColumns =
+"1fr";
+
+const d = currentDate;
+
+const date =
+`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+
+const holidays =
+getDynamicHolidays(d.getFullYear());
+
+const catholicFeastDays =
+getCatholicFeastDays(d.getFullYear());
+
+$("monthTitle").textContent =
+`${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+
+const taskHTML =
+tasks
+.filter(
+t =>
+t.dueDate &&
+t.dueDate.startsWith(date)
+)
+.map(
+t => `
+<div class="calendar-task">
+${t.text}
+</div>
+`
+)
+.join("");
+
+const holidayHTML =
+holidays
+.filter(
+h => h.date === date
+)
+.map(
+h => `
+<div style="
+background:#ef4444;
+color:white;
+padding:5px 7px;
+border-radius:7px;
+font-size:11px;
+margin-top:5px;
+font-weight:bold;
+">
+${h.name}
+</div>
+`
+)
+.join("");
+
+const catholicHTML =
+catholicFeastDays
+.filter(
+h => h.date === date
+)
+.map(
+h => `
+<div style="
+background:#7c3aed;
+color:white;
+padding:5px 7px;
+border-radius:7px;
+font-size:11px;
+margin-top:5px;
+font-weight:bold;
+">
+${h.name}
+</div>
+`
+)
+.join("");
+
+calendar.innerHTML = `
+
+<div class="day"
+style="min-height:400px;"
+onclick="selectDate('${date}')">
+
+<div class="day-number">
+${date}
+</div>
+
+${holidayHTML}
+${catholicHTML}
+${taskHTML || "Click to add tasks"}
+
+</div>
+
+`;
+
+}
+
+function renderWeekView(){
+
+const calendar = $("calendar");
+
+calendar.style.gridTemplateColumns =
+"repeat(7,1fr)";
+
+const temp = new Date(currentDate);
+
+const start = new Date(temp);
+
+start.setDate(
+temp.getDate() - temp.getDay()
+);
+
+$("monthTitle").textContent =
+`Week of ${months[start.getMonth()]}`;
+
+calendar.innerHTML =
+days.map(d =>
+`<div class="day-name">${d}</div>`
+).join("");
+
+for(let i=0;i<7;i++){
+
+const current = new Date(start);
+
+current.setDate(
+start.getDate()+i
+);
+
+const holidays =
+getDynamicHolidays(current.getFullYear());
+
+const catholicFeastDays =
+getCatholicFeastDays(current.getFullYear());
+
+const date =
+`${current.getFullYear()}-${String(current.getMonth()+1).padStart(2,"0")}-${String(current.getDate()).padStart(2,"0")}`;
+
+const taskHTML =
+tasks
+.filter(
+t =>
+t.dueDate &&
+t.dueDate.startsWith(date)
+)
+.map(
+t => `
+<div class="calendar-task">
+${t.text}
+</div>
+`
+)
+.join("");
+
+const holidayHTML =
+holidays
+.filter(
+h => h.date === date
+)
+.map(
+h => `
+<div style="
+background:#ef4444;
+color:white;
+padding:5px 7px;
+border-radius:7px;
+font-size:11px;
+margin-top:5px;
+font-weight:bold;
+">
+${h.name}
+</div>
+`
+)
+.join("");
+
+const catholicHTML =
+catholicFeastDays
+.filter(
+h => h.date === date
+)
+.map(
+h => `
+<div style="
+background:#7c3aed;
+color:white;
+padding:5px 7px;
+border-radius:7px;
+font-size:11px;
+margin-top:5px;
+font-weight:bold;
+">
+${h.name}
+</div>
+`
+)
+.join("");
+
+calendar.innerHTML += `
+
+<div class="day"
+onclick="selectDate('${date}')">
+
+<div class="day-number">
+${current.getDate()}
+</div>
+
+${holidayHTML}
+${catholicHTML}
+${taskHTML || "<small>Click to add</small>"}
+
+</div>
+
+`;
+
+}
+
+}
+
+function renderMonthView(){
+
+const calendar = $("calendar");
+
+calendar.style.gridTemplateColumns =
+"repeat(7,1fr)";
+
+const month =
+currentDate.getMonth();
+
+const year =
+currentDate.getFullYear();
+
+const holidays =
+getDynamicHolidays(year);
+
+const catholicFeastDays =
+getCatholicFeastDays(year);
+
+$("monthTitle").textContent =
+`${months[month]} ${year}`;
+
+calendar.innerHTML =
+days.map(d =>
+`<div class="day-name">${d}</div>`
+).join("");
+
+const firstDay =
+new Date(year,month,1).getDay();
+
+const daysInMonth =
+new Date(year,month+1,0).getDate();
+
+for(let i=0;i<firstDay;i++){
+calendar.innerHTML += "<div></div>";
+}
+
+for(let day=1;day<=daysInMonth;day++){
+
+const date =
+`${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+
+const taskHTML =
+tasks
+.filter(
+t =>
+t.dueDate &&
+t.dueDate.startsWith(date)
+)
+.map(
+t => `
+<div class="calendar-task">
+${t.text}
+</div>
+`
+)
+.join("");
+
+const holidayHTML =
+holidays
+.filter(
+h => h.date === date
+)
+.map(
+h => `
+<div style="
+background:#ef4444;
+color:white;
+padding:5px 7px;
+border-radius:7px;
+font-size:11px;
+margin-top:5px;
+font-weight:bold;
+">
+${h.name}
+</div>
+`
+)
+.join("");
+
+const catholicHTML =
+catholicFeastDays
+.filter(
+h => h.date === date
+)
+.map(
+h => `
+<div style="
+background:#7c3aed;
+color:white;
+padding:5px 7px;
+border-radius:7px;
+font-size:11px;
+margin-top:5px;
+font-weight:bold;
+">
+${h.name}
+</div>
+`
+)
+.join("");
+
+calendar.innerHTML += `
+
+<div class="day"
+onclick="selectDate('${date}')">
+
+<div class="day-number">
+${day}
+</div>
+
+${holidayHTML}
+${catholicHTML}
+${taskHTML || "<small>Click to add</small>"}
+
+</div>
+
+`;
+
+}
+
+}
+
+function renderYearView(){
+
+const calendar = $("calendar");
+
+calendar.style.gridTemplateColumns =
+"repeat(3,1fr)";
+
+const year =
+currentDate.getFullYear();
+
+$("monthTitle").textContent =
+year;
+
+for(let m=0;m<12;m++){
+
+calendar.innerHTML += `
+
+<div class="day"
+onclick="openMonth(${m})">
+
+<div class="day-number">
+${months[m]}
+</div>
+
+<br>
+
+Click to Open
+
+</div>
+
+`;
+
+}
+
+}
+
+function openMonth(month){
+
+currentDate.setMonth(month);
+
+viewMode = "month";
+
+renderCalendar();
+
+}
+
+function selectDate(date){
+
+$("dueDate").value =
+`${date}T12:00`;
+
+$("taskInput").focus();
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+}
+
+setInterval(() => {
+
+renderTasks();
+
+}, 60000);
+
+window.onload = () => {
+
+renderTasks();
+renderCalendar();
+
+};

@@ -2,79 +2,6 @@ const WEATHER_API_KEY = "5e874ea65109f8afe947fcfed3265b4d";
 
 let tasks = [];
 
-/* =========================
-   HOLIDAYS
-========================= */
-
-const holidays = [
-
-{ name:"New Year's Day 🎉", date:"2026-01-01" },
-{ name:"Martin Luther King Jr. Day", date:"2026-01-19" },
-{ name:"Valentine's Day ❤️", date:"2026-02-14" },
-{ name:"Presidents' Day", date:"2026-02-16" },
-{ name:"St. Patrick's Day ☘️", date:"2026-03-17" },
-{ name:"Easter ✝️", date:"2026-04-05" },
-{ name:"Mother's Day 💐", date:"2026-05-10" },
-{ name:"Memorial Day", date:"2026-05-25" },
-{ name:"Father's Day", date:"2026-06-21" },
-{ name:"Independence Day 🇺🇸", date:"2026-07-04" },
-{ name:"Labor Day", date:"2026-09-07" },
-{ name:"Halloween 🎃", date:"2026-10-31" },
-{ name:"Veterans Day", date:"2026-11-11" },
-{ name:"Thanksgiving 🦃", date:"2026-11-26" },
-{ name:"Christmas Eve 🎄", date:"2026-12-24" },
-{ name:"Christmas 🎄", date:"2026-12-25" },
-{ name:"New Year's Eve 🎆", date:"2026-12-31" }
-
-];
-
-/* =========================
-   CATHOLIC FEAST DAYS
-========================= */
-
-const catholicFeastDays = [
-
-{ name:"Mary, Mother of God ✝️", date:"2026-01-01" },
-{ name:"Epiphany ✨", date:"2026-01-06" },
-{ name:"Baptism of the Lord", date:"2026-01-11" },
-{ name:"Presentation of the Lord", date:"2026-02-02" },
-{ name:"Saint Valentine ❤️", date:"2026-02-14" },
-{ name:"Saint Patrick ☘️", date:"2026-03-17" },
-{ name:"Saint Joseph", date:"2026-03-19" },
-{ name:"Palm Sunday 🌿", date:"2026-03-29" },
-{ name:"Holy Thursday ✝️", date:"2026-04-02" },
-{ name:"Good Friday ✝️", date:"2026-04-03" },
-{ name:"Easter Sunday ✝️", date:"2026-04-05" },
-{ name:"Divine Mercy Sunday", date:"2026-04-12" },
-{ name:"Saint Mark", date:"2026-04-25" },
-{ name:"Saint Joseph the Worker", date:"2026-05-01" },
-{ name:"Ascension of Jesus ✨", date:"2026-05-14" },
-{ name:"Pentecost 🔥", date:"2026-05-24" },
-{ name:"Holy Trinity Sunday", date:"2026-05-31" },
-{ name:"Corpus Christi", date:"2026-06-04" },
-{ name:"Sacred Heart of Jesus ❤️", date:"2026-06-12" },
-{ name:"Saint Anthony", date:"2026-06-13" },
-{ name:"Saints Peter and Paul", date:"2026-06-29" },
-{ name:"Our Lady of Mount Carmel", date:"2026-07-16" },
-{ name:"Transfiguration of the Lord ✨", date:"2026-08-06" },
-{ name:"Assumption of Mary 👑", date:"2026-08-15" },
-{ name:"Saint Augustine", date:"2026-08-28" },
-{ name:"Nativity of Mary 🎂", date:"2026-09-08" },
-{ name:"Holy Cross Day ✝️", date:"2026-09-14" },
-{ name:"Guardian Angels 👼", date:"2026-10-02" },
-{ name:"Saint Francis of Assisi 🕊️", date:"2026-10-04" },
-{ name:"Saint Luke", date:"2026-10-18" },
-{ name:"All Saints Day ✨", date:"2026-11-01" },
-{ name:"All Souls Day 🕯️", date:"2026-11-02" },
-{ name:"Saint Martin of Tours", date:"2026-11-11" },
-{ name:"Christ the King 👑", date:"2026-11-22" },
-{ name:"Immaculate Conception ✨", date:"2026-12-08" },
-{ name:"Our Lady of Guadalupe 🌹", date:"2026-12-12" },
-{ name:"Christmas ✝️🎄", date:"2026-12-25" },
-{ name:"Holy Family Sunday", date:"2026-12-27" }
-
-];
-
 const $ = id => document.getElementById(id);
 
 const months = [
@@ -105,6 +32,339 @@ const quotes = [
 "Progress matters.",
 "Excellent work!"
 ];
+
+/* =========================
+   AUTO HOLIDAYS + CATHOLIC DAYS
+========================= */
+
+function getDynamicHolidays(year){
+
+return [
+
+{
+name:"New Year's Day 🎉",
+date:`${year}-01-01`
+},
+
+{
+name:"Valentine's Day ❤️",
+date:`${year}-02-14`
+},
+
+{
+name:"St. Patrick's Day ☘️",
+date:`${year}-03-17`
+},
+
+{
+name:"Independence Day 🇺🇸",
+date:`${year}-07-04`
+},
+
+{
+name:"Halloween 🎃",
+date:`${year}-10-31`
+},
+
+{
+name:"Veterans Day",
+date:`${year}-11-11`
+},
+
+{
+name:"Christmas Eve 🎄",
+date:`${year}-12-24`
+},
+
+{
+name:"Christmas 🎄",
+date:`${year}-12-25`
+},
+
+{
+name:"New Year's Eve 🎆",
+date:`${year}-12-31`
+},
+
+{
+name:"Martin Luther King Jr. Day",
+date:getNthWeekdayOfMonth(year,1,0,3)
+},
+
+{
+name:"Presidents' Day",
+date:getNthWeekdayOfMonth(year,1,1,3)
+},
+
+{
+name:"Mother's Day 💐",
+date:getNthWeekdayOfMonth(year,0,4,2)
+},
+
+{
+name:"Father's Day",
+date:getNthWeekdayOfMonth(year,0,5,3)
+},
+
+{
+name:"Labor Day",
+date:getNthWeekdayOfMonth(year,1,8,1)
+},
+
+{
+name:"Memorial Day",
+date:getLastWeekdayOfMonth(year,1,4)
+},
+
+{
+name:"Thanksgiving 🦃",
+date:getNthWeekdayOfMonth(year,4,10,4)
+}
+
+];
+
+}
+
+function getCatholicFeastDays(year){
+
+const easter =
+getEaster(year);
+
+return [
+
+{
+name:"Mary, Mother of God ✝️",
+date:`${year}-01-01`
+},
+
+{
+name:"Epiphany ✨",
+date:`${year}-01-06`
+},
+
+{
+name:"Presentation of the Lord",
+date:`${year}-02-02`
+},
+
+{
+name:"Saint Patrick ☘️",
+date:`${year}-03-17`
+},
+
+{
+name:"Saint Joseph",
+date:`${year}-03-19`
+},
+
+{
+name:"Palm Sunday 🌿",
+date:addDays(easter,-7)
+},
+
+{
+name:"Holy Thursday ✝️",
+date:addDays(easter,-3)
+},
+
+{
+name:"Good Friday ✝️",
+date:addDays(easter,-2)
+},
+
+{
+name:"Easter Sunday ✝️",
+date:easter
+},
+
+{
+name:"Divine Mercy Sunday",
+date:addDays(easter,7)
+},
+
+{
+name:"Ascension of Jesus ✨",
+date:addDays(easter,39)
+},
+
+{
+name:"Pentecost 🔥",
+date:addDays(easter,49)
+},
+
+{
+name:"Holy Trinity Sunday",
+date:addDays(easter,56)
+},
+
+{
+name:"Corpus Christi",
+date:addDays(easter,60)
+},
+
+{
+name:"Sacred Heart of Jesus ❤️",
+date:addDays(easter,68)
+},
+
+{
+name:"Saint Anthony",
+date:`${year}-06-13`
+},
+
+{
+name:"Saints Peter and Paul",
+date:`${year}-06-29`
+},
+
+{
+name:"Assumption of Mary 👑",
+date:`${year}-08-15`
+},
+
+{
+name:"Saint Francis of Assisi 🕊️",
+date:`${year}-10-04`
+},
+
+{
+name:"All Saints Day ✨",
+date:`${year}-11-01`
+},
+
+{
+name:"All Souls Day 🕯️",
+date:`${year}-11-02`
+},
+
+{
+name:"Immaculate Conception ✨",
+date:`${year}-12-08`
+},
+
+{
+name:"Our Lady of Guadalupe 🌹",
+date:`${year}-12-12`
+},
+
+{
+name:"Christmas ✝️🎄",
+date:`${year}-12-25`
+}
+
+];
+
+}
+
+/* =========================
+   DATE HELPERS
+========================= */
+
+function formatDate(date){
+
+return `${date.getFullYear()}-${String(
+date.getMonth()+1
+).padStart(2,"0")}-${String(
+date.getDate()
+).padStart(2,"0")}`;
+
+}
+
+function addDays(baseDate,days){
+
+const date =
+new Date(baseDate);
+
+date.setDate(
+date.getDate() + days
+);
+
+return formatDate(date);
+
+}
+
+function getNthWeekdayOfMonth(
+year,
+weekday,
+month,
+nth
+){
+
+const first =
+new Date(year,month,1);
+
+let day =
+first.getDay();
+
+let offset =
+(7 + weekday - day) % 7;
+
+offset += (nth - 1) * 7;
+
+const result =
+new Date(year,month,1 + offset);
+
+return formatDate(result);
+
+}
+
+function getLastWeekdayOfMonth(
+year,
+weekday,
+month
+){
+
+const last =
+new Date(year,month+1,0);
+
+while(last.getDay() !== weekday){
+
+last.setDate(
+last.getDate() - 1
+);
+
+}
+
+return formatDate(last);
+
+}
+
+function getEaster(year){
+
+const f =
+Math.floor;
+
+const G =
+year % 19;
+
+const C =
+f(year / 100);
+
+const H =
+(C - f(C / 4) - f((8 * C + 13) / 25) + 19 * G + 15) % 30;
+
+const I =
+H - f(H / 28) * (
+1 - f(H / 28) * f(29 / (H + 1)) * f((21 - G) / 11)
+);
+
+const J =
+(year + f(year / 4) + I + 2 - C + f(C / 4)) % 7;
+
+const L =
+I - J;
+
+const month =
+3 + f((L + 40) / 44);
+
+const day =
+L + 28 - 31 * f(month / 4);
+
+return formatDate(
+new Date(year,month-1,day)
+);
+
+}
 
 /* =========================
    NOTIFICATIONS
@@ -318,145 +578,36 @@ tasks.find(t => t.id === id);
 
 if(!task) return;
 
-const overlay =
-document.createElement("div");
+const newTitle =
+prompt(
+"Edit task name:",
+task.text
+);
 
-overlay.style.position = "fixed";
-overlay.style.top = "0";
-overlay.style.left = "0";
-overlay.style.width = "100%";
-overlay.style.height = "100%";
-overlay.style.background = "rgba(0,0,0,0.5)";
-overlay.style.display = "flex";
-overlay.style.justifyContent = "center";
-overlay.style.alignItems = "center";
-overlay.style.zIndex = "9999";
+if(newTitle === null) return;
 
-overlay.innerHTML = `
+const newDescription =
+prompt(
+"Edit description:",
+task.description
+);
 
-<div style="
-background:white;
-padding:25px;
-border-radius:20px;
-width:90%;
-max-width:450px;
-display:grid;
-gap:14px;
-">
+if(newDescription === null) return;
 
-<h2>Edit Task</h2>
+const newDate =
+prompt(
+"Edit due date and time (YYYY-MM-DDTHH:MM)",
+task.dueDate
+);
 
-<input
-id="editTitle"
-value="${task.text}"
-style="
-padding:12px;
-border-radius:10px;
-border:1px solid #ccc;
-font-size:16px;
-">
+if(newDate === null) return;
 
-<textarea
-id="editDescription"
-style="
-padding:12px;
-border-radius:10px;
-border:1px solid #ccc;
-height:100px;
-font-size:15px;
-">${task.description}</textarea>
-
-<label style="font-weight:bold;">
-Choose Due Date & Time
-</label>
-
-<input
-id="editDate"
-type="datetime-local"
-value="${task.dueDate}"
-style="
-padding:12px;
-border-radius:10px;
-border:1px solid #ccc;
-font-size:16px;
-cursor:pointer;
-">
-
-<div style="
-display:flex;
-gap:10px;
-margin-top:10px;
-">
-
-<button
-id="saveEdit"
-style="
-flex:1;
-padding:12px;
-background:#4f46e5;
-color:white;
-border:none;
-border-radius:12px;
-font-weight:bold;
-cursor:pointer;
-">
-
-Save
-
-</button>
-
-<button
-id="cancelEdit"
-style="
-flex:1;
-padding:12px;
-background:#ddd;
-color:black;
-border:none;
-border-radius:12px;
-font-weight:bold;
-cursor:pointer;
-">
-
-Cancel
-
-</button>
-
-</div>
-
-</div>
-
-`;
-
-document.body.appendChild(overlay);
-
-document
-.getElementById("saveEdit")
-.onclick = () => {
-
-task.text =
-document.getElementById("editTitle").value;
-
-task.description =
-document.getElementById("editDescription").value;
-
-task.dueDate =
-document.getElementById("editDate").value;
-
-document.body.removeChild(overlay);
+task.text = newTitle;
+task.description = newDescription;
+task.dueDate = newDate;
 
 renderTasks();
 renderCalendar();
-
-};
-
-document
-.getElementById("cancelEdit")
-.onclick = () => {
-
-document.body.removeChild(overlay);
-
-};
 
 }
 
@@ -719,10 +870,6 @@ renderYearView();
 
 }
 
-/* =========================
-   DAY VIEW
-========================= */
-
 function renderDayView(){
 
 const calendar = $("calendar");
@@ -734,6 +881,12 @@ const d = currentDate;
 
 const date =
 `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+
+const holidays =
+getDynamicHolidays(d.getFullYear());
+
+const catholicFeastDays =
+getCatholicFeastDays(d.getFullYear());
 
 $("monthTitle").textContent =
 `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
@@ -818,10 +971,6 @@ ${taskHTML || "Click to add tasks"}
 
 }
 
-/* =========================
-   WEEK VIEW
-========================= */
-
 function renderWeekView(){
 
 const calendar = $("calendar");
@@ -863,6 +1012,12 @@ const current = new Date(start);
 current.setDate(
 start.getDate()+i
 );
+
+const holidays =
+getDynamicHolidays(current.getFullYear());
+
+const catholicFeastDays =
+getCatholicFeastDays(current.getFullYear());
 
 const date =
 `${current.getFullYear()}-${String(current.getMonth()+1).padStart(2,"0")}-${String(current.getDate()).padStart(2,"0")}`;
@@ -948,10 +1103,6 @@ ${taskHTML || "<small>Click to add</small>"}
 
 }
 
-/* =========================
-   MONTH VIEW
-========================= */
-
 function renderMonthView(){
 
 const calendar = $("calendar");
@@ -964,6 +1115,12 @@ currentDate.getMonth();
 
 const year =
 currentDate.getFullYear();
+
+const holidays =
+getDynamicHolidays(year);
+
+const catholicFeastDays =
+getCatholicFeastDays(year);
 
 $("monthTitle").textContent =
 `${months[month]} ${year}`;
@@ -1069,10 +1226,6 @@ ${taskHTML || "<small>Click to add</small>"}
 
 }
 
-/* =========================
-   YEAR VIEW
-========================= */
-
 function renderYearView(){
 
 const calendar = $("calendar");
@@ -1119,10 +1272,6 @@ renderCalendar();
 
 }
 
-/* =========================
-   SELECT DATE
-========================= */
-
 function selectDate(date){
 
 $("dueDate").value =
@@ -1137,19 +1286,11 @@ behavior:"smooth"
 
 }
 
-/* =========================
-   AUTO UPDATE TIMERS
-========================= */
-
 setInterval(() => {
 
 renderTasks();
 
 }, 60000);
-
-/* =========================
-   PAGE LOAD
-========================= */
 
 window.onload = () => {
 

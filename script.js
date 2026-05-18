@@ -1,4 +1,4 @@
-const WEATHER_API_KEY = "YOUR_OPENWEATHER_API_KEY";
+const WEATHER_API_KEY = "30dbba40e9614cb0c0c23e0bb26f2926";
 
 let tasks = [];
 
@@ -33,20 +33,11 @@ const quotes = [
 "Excellent work!"
 ];
 
-/* =========================
-   NOTIFICATIONS
-========================= */
-
 async function enableNotifications(){
 
 if(!("Notification" in window)){
-
-alert(
-"Notifications are not supported."
-);
-
+alert("Notifications are not supported.");
 return;
-
 }
 
 const permission =
@@ -65,168 +56,11 @@ body:"Smart reminders are active."
 
 }
 
-/* =========================
-   WEATHER SMART TASKS
-========================= */
-
 async function getWeatherTasks(){
 
-if(!navigator.geolocation){
-
-alert(
-"Geolocation is not supported."
-);
-
-return;
+alert("Add your OpenWeather API key first.");
 
 }
-
-navigator.geolocation.getCurrentPosition(
-
-async position => {
-
-const lat =
-position.coords.latitude;
-
-const lon =
-position.coords.longitude;
-
-try{
-
-const response =
-await fetch(
-`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=imperial`
-);
-
-const data =
-await response.json();
-
-const forecast =
-data.list?.[0];
-
-if(!forecast){
-
-alert(
-"Weather unavailable."
-);
-
-return;
-
-}
-
-const weather =
-forecast.weather?.[0]?.main
-?.toLowerCase() || "";
-
-const temp =
-forecast.main?.temp || 0;
-
-if(weather.includes("rain")){
-
-createWeatherTask(
-"Take an umbrella ☔",
-"Rain is predicted today."
-);
-
-}
-
-if(weather.includes("snow")){
-
-createWeatherTask(
-"Wear warm clothes ❄️",
-"Snow is predicted today."
-);
-
-}
-
-if(temp >= 90){
-
-createWeatherTask(
-"Drink extra water 🥤",
-"Hot weather expected today."
-);
-
-}
-
-if(temp <= 45){
-
-createWeatherTask(
-"Bring a jacket 🧥",
-"Cold weather expected today."
-);
-
-}
-
-renderTasks();
-renderCalendar();
-
-alert(
-"Weather smart tasks updated."
-);
-
-}catch(error){
-
-console.error(error);
-
-alert(
-"Could not load weather."
-);
-
-}
-
-},
-
-() => {
-
-alert(
-"Location access denied."
-);
-
-}
-
-);
-
-}
-
-function createWeatherTask(
-title,
-description
-){
-
-const exists =
-tasks.some(
-t =>
-t.text === title &&
-!t.done
-);
-
-if(exists) return;
-
-tasks.push({
-
-id:
-Date.now() + Math.random(),
-
-text:title,
-
-description,
-
-priority:"medium",
-
-dueDate:
-new Date()
-.toISOString()
-.slice(0,16),
-
-done:false
-
-});
-
-}
-
-/* =========================
-   TASKS
-========================= */
 
 function addTask(){
 
@@ -234,30 +68,21 @@ const text =
 $("taskInput").value.trim();
 
 if(!text){
-
-alert(
-"Please enter a task."
-);
-
+alert("Please enter a task.");
 return;
-
 }
 
 tasks.push({
 
-id:
-Date.now(),
+id:Date.now(),
 
 text:text,
 
-description:
-$("descriptionInput").value,
+description:$("descriptionInput").value,
 
-priority:
-$("priority").value,
+priority:$("priority").value,
 
-dueDate:
-$("dueDate").value,
+dueDate:$("dueDate").value,
 
 done:false
 
@@ -275,9 +100,7 @@ renderCalendar();
 function toggleTask(id){
 
 const task =
-tasks.find(
-t => t.id === id
-);
+tasks.find(t => t.id === id);
 
 if(task){
 
@@ -295,9 +118,7 @@ renderCalendar();
 function deleteTask(id){
 
 tasks =
-tasks.filter(
-t => t.id !== id
-);
+tasks.filter(t => t.id !== id);
 
 renderTasks();
 renderCalendar();
@@ -319,17 +140,13 @@ popup.innerHTML = `
 
 <p>
 ${quotes[
-Math.floor(
-Math.random() * quotes.length
-)
+Math.floor(Math.random() * quotes.length)
 ]}
 </p>
 
 `;
 
-document.body.appendChild(
-popup
-);
+document.body.appendChild(popup);
 
 setTimeout(
 () => popup.remove(),
@@ -384,10 +201,6 @@ Delete
 
 }
 
-/* =========================
-   CALENDAR
-========================= */
-
 function setViewMode(mode){
 
 viewMode = mode;
@@ -399,35 +212,19 @@ renderCalendar();
 function changeView(num){
 
 if(viewMode === "day"){
-
-currentDate.setDate(
-currentDate.getDate() + num
-);
-
+currentDate.setDate(currentDate.getDate() + num);
 }
 
 if(viewMode === "week"){
-
-currentDate.setDate(
-currentDate.getDate() + (num * 7)
-);
-
+currentDate.setDate(currentDate.getDate() + (num * 7));
 }
 
 if(viewMode === "month"){
-
-currentDate.setMonth(
-currentDate.getMonth() + num
-);
-
+currentDate.setMonth(currentDate.getMonth() + num);
 }
 
 if(viewMode === "year"){
-
-currentDate.setFullYear(
-currentDate.getFullYear() + num
-);
-
+currentDate.setFullYear(currentDate.getFullYear() + num);
 }
 
 renderCalendar();
@@ -436,51 +233,35 @@ renderCalendar();
 
 function renderCalendar(){
 
-const calendar =
-$("calendar");
+const calendar = $("calendar");
 
 calendar.innerHTML = "";
 
 if(viewMode === "day"){
-
 renderDayView();
-
 }
 
 if(viewMode === "week"){
-
 renderWeekView();
-
 }
 
 if(viewMode === "month"){
-
 renderMonthView();
-
 }
 
 if(viewMode === "year"){
-
 renderYearView();
-
 }
 
 }
-
-/* =========================
-   DAY VIEW
-========================= */
 
 function renderDayView(){
 
-const calendar =
-$("calendar");
+const calendar = $("calendar");
 
-calendar.style.gridTemplateColumns =
-"1fr";
+calendar.style.gridTemplateColumns = "1fr";
 
-const d =
-currentDate;
+const d = currentDate;
 
 const date =
 `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
@@ -490,25 +271,17 @@ $("monthTitle").textContent =
 
 const taskHTML =
 tasks
-.filter(
-t =>
-t.dueDate &&
-t.dueDate.startsWith(date)
-)
-.map(
-t => `
+.filter(t => t.dueDate && t.dueDate.startsWith(date))
+.map(t => `
 <div class="calendar-task">
 ${t.text}
 </div>
-`
-)
+`)
 .join("");
 
 calendar.innerHTML = `
 
-<div class="day"
-style="min-height:400px;"
-onclick="selectDate('${date}')">
+<div class="day" style="min-height:400px;">
 
 <div class="day-number">
 ${date}
@@ -522,41 +295,23 @@ ${taskHTML || "No tasks"}
 
 }
 
-/* =========================
-   WEEK VIEW
-========================= */
-
 function renderWeekView(){
 
-const calendar =
-$("calendar");
+const calendar = $("calendar");
 
 calendar.style.gridTemplateColumns =
 "repeat(7,1fr)";
 
-const temp =
-new Date(currentDate);
+const temp = new Date(currentDate);
 
-const start =
-new Date(temp);
+const start = new Date(temp);
 
 start.setDate(
 temp.getDate() - temp.getDay()
 );
 
-const week =
-Math.ceil(start.getDate()/7);
-
-const labels = [
-"First",
-"Second",
-"Third",
-"Fourth",
-"Fifth"
-];
-
 $("monthTitle").textContent =
-`${labels[week-1]} Week of ${months[start.getMonth()]}`;
+`Week of ${months[start.getMonth()]} ${start.getDate()}`;
 
 calendar.innerHTML =
 days.map(d =>
@@ -565,36 +320,26 @@ days.map(d =>
 
 for(let i=0;i<7;i++){
 
-const current =
-new Date(start);
+const current = new Date(start);
 
-current.setDate(
-start.getDate()+i
-);
+current.setDate(start.getDate()+i);
 
 const date =
 `${current.getFullYear()}-${String(current.getMonth()+1).padStart(2,"0")}-${String(current.getDate()).padStart(2,"0")}`;
 
 const taskHTML =
 tasks
-.filter(
-t =>
-t.dueDate &&
-t.dueDate.startsWith(date)
-)
-.map(
-t => `
+.filter(t => t.dueDate && t.dueDate.startsWith(date))
+.map(t => `
 <div class="calendar-task">
 ${t.text}
 </div>
-`
-)
+`)
 .join("");
 
 calendar.innerHTML += `
 
-<div class="day"
-onclick="selectDate('${date}')">
+<div class="day">
 
 <div class="day-number">
 ${current.getDate()}
@@ -610,23 +355,16 @@ ${taskHTML}
 
 }
 
-/* =========================
-   MONTH VIEW
-========================= */
-
 function renderMonthView(){
 
-const calendar =
-$("calendar");
+const calendar = $("calendar");
 
 calendar.style.gridTemplateColumns =
 "repeat(7,1fr)";
 
-const month =
-currentDate.getMonth();
+const month = currentDate.getMonth();
 
-const year =
-currentDate.getFullYear();
+const year = currentDate.getFullYear();
 
 $("monthTitle").textContent =
 `${months[month]} ${year}`;
@@ -643,10 +381,7 @@ const daysInMonth =
 new Date(year,month+1,0).getDate();
 
 for(let i=0;i<firstDay;i++){
-
-calendar.innerHTML +=
-"<div></div>";
-
+calendar.innerHTML += "<div></div>";
 }
 
 for(let day=1;day<=daysInMonth;day++){
@@ -656,24 +391,17 @@ const date =
 
 const taskHTML =
 tasks
-.filter(
-t =>
-t.dueDate &&
-t.dueDate.startsWith(date)
-)
-.map(
-t => `
+.filter(t => t.dueDate && t.dueDate.startsWith(date))
+.map(t => `
 <div class="calendar-task">
 ${t.text}
 </div>
-`
-)
+`)
 .join("");
 
 calendar.innerHTML += `
 
-<div class="day"
-onclick="selectDate('${date}')">
+<div class="day">
 
 <div class="day-number">
 ${day}
@@ -689,14 +417,9 @@ ${taskHTML}
 
 }
 
-/* =========================
-   YEAR VIEW
-========================= */
-
 function renderYearView(){
 
-const calendar =
-$("calendar");
+const calendar = $("calendar");
 
 calendar.style.gridTemplateColumns =
 "repeat(3,1fr)";
@@ -704,15 +427,13 @@ calendar.style.gridTemplateColumns =
 const year =
 currentDate.getFullYear();
 
-$("monthTitle").textContent =
-year;
+$("monthTitle").textContent = year;
 
 for(let m=0;m<12;m++){
 
 calendar.innerHTML += `
 
-<div class="day"
-onclick="openMonth(${m})">
+<div class="day" onclick="openMonth(${m})">
 
 <div class="day-number">
 ${months[m]}
@@ -739,26 +460,6 @@ viewMode = "month";
 renderCalendar();
 
 }
-
-/* =========================
-   SELECT DATE
-========================= */
-
-function selectDate(date){
-
-$("dueDate").value =
-`${date}T12:00`;
-
-window.scrollTo({
-top:0,
-behavior:"smooth"
-});
-
-}
-
-/* =========================
-   PAGE LOAD
-========================= */
 
 window.onload = () => {
 
